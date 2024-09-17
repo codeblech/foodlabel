@@ -17,12 +17,13 @@ from io import BytesIO
 
 import re
 
+load_dotenv()
+
+
 def setup_driver():
     chrome_options = Options()
 
-    service = Service(
-        "/home/malik/Documents/Programming/minor 😛/foodlabel/chromedriver"
-    )
+    service = Service(os.getenv("CHROMEDRIVER_PATH"))
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.set_window_size(1920, 1080)
     return driver
@@ -102,8 +103,7 @@ if __name__ == "__main__":
     image_urls = extract_image_urls_from_url(url)
     image_urls = [modify_image_url(url) for url in image_urls]
 
-    load_dotenv()
-    genai.configure(api_key=os.environ["API_KEY"])
+    genai.configure(api_key=os.getenv("API_KEY"))
     model = genai.GenerativeModel("gemini-1.5-pro")
 
     image_list = [
