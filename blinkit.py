@@ -19,7 +19,6 @@ import re
 
 load_dotenv()
 
-#  hello i am dhwaj
 
 def setup_driver():
     chrome_options = Options()
