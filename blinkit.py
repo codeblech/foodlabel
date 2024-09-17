@@ -15,6 +15,7 @@ import PIL.Image
 import requests
 from io import BytesIO
 
+import re
 
 def setup_driver():
     chrome_options = Options()
@@ -82,9 +83,24 @@ def open_image_from_url(image_url):
         return None
 
 
+def modify_image_url(url):
+    # Pattern to match w, h, and q parameters
+    height_pattern = r",h=\d+"
+    width_pattern = r",w=\d+"
+    quality_pattern = r",q=\d+"
+
+    # Apply the replacements
+    modified_url = re.sub(height_pattern, ",h=1200", url)
+    modified_url = re.sub(width_pattern, ",w=1200", modified_url)
+    modified_url = re.sub(quality_pattern, ",q=100", modified_url)
+
+    return modified_url
+
+
 if __name__ == "__main__":
-    url = "https://blinkit.com/prn/tops-tomato-ketchup/prid/436913"
+    url = "https://blinkit.com/prn/britannia-fruit-cake/prid/336628"
     image_urls = extract_image_urls_from_url(url)
+    image_urls = [modify_image_url(url) for url in image_urls]
 
     load_dotenv()
     genai.configure(api_key=os.environ["API_KEY"])
