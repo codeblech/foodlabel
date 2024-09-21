@@ -6,8 +6,9 @@ import json
 dotenv.load_dotenv()  # Load environment variables from .env file
 
 # Access API key from environment variable
-API_KEY = os.getenv("NOMIC_ATLAS_API_KEY")
+API_KEY = os.getenv("NOMIC_API")
 DATASET_ID = os.getenv("NOMIC_ATLAS_DATASET_ID")
+nomic_api = os.getenv("")
 
 def store_data(data, data_format="json"):
     """Stores data in the specified format to the Nomic Atlas dataset."""
