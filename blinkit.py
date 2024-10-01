@@ -1,3 +1,4 @@
+import streamlit as st
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -22,7 +23,7 @@ load_dotenv()
 
 def setup_driver():
     chrome_options = Options()
-
+    chrome_options.add_argument("--headless")
     service = Service(os.getenv("CHROMEDRIVER_PATH"))
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.set_window_size(1920, 1080)
@@ -99,21 +100,23 @@ def modify_image_url(url):
 
 
 if __name__ == "__main__":
-    url = "https://blinkit.com/prn/britannia-fruit-cake/prid/336628"
-    image_urls = extract_image_urls_from_url(url)
-    image_urls = [modify_image_url(url) for url in image_urls]
+    url = st.text_input("Enter Blinkit Product URL", "")
+    if url:
+        image_urls = extract_image_urls_from_url(url)
+        image_urls = [modify_image_url(url) for url in image_urls]
 
-    genai.configure(api_key=os.getenv("API_KEY"))
-    model = genai.GenerativeModel("gemini-1.5-pro")
+        genai.configure(api_key=os.getenv("API_KEY"))
+        model = genai.GenerativeModel("gemini-1.5-pro-002")
 
-    image_list = [
-        open_image_from_url(image_url)
-        for image_url in image_urls
-        if open_image_from_url(image_url) is not None
-    ]
-    prompt = [
-        r"""extract the nutritional label and ingredients. only answer on the basis of the images i provide. some images might not have any useful information. provide the complete relevant information. do not miss out details. do not guess anything. only use the data in the images. if ingredients not present say "ingredients not present" if nutritional label not present say "nutritional label not present" your output should be in json format."""
-    ]
+        image_list = [
+            open_image_from_url(image_url)
+            for image_url in image_urls
+            if open_image_from_url(image_url) is not None
+        ]
+        prompt = [
+            r"""extract the nutritional label and ingredients. only answer on the basis of the images i provide. some images might not have any useful information. provide the complete relevant information. do not miss out details. do not guess anything. only use the data in the images. if ingredients not present say "ingredients not present" if nutritional label not present say "nutritional label not present" your output should be in json format."""
+        ]
 
-    response = model.generate_content(prompt + image_list)
-    print(response.text)
+        response = model.generate_content(prompt + image_list)
+        st.markdown(response.text)
+
