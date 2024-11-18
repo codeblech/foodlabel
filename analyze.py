@@ -61,3 +61,7 @@ def analyze_product(url):
             "success": False,
             "error": str(e)
         }
+
+if __name__ == "__main__":
+    url = "https://blinkit.com/prn/cadbury-gems-duo-pack-chocolate/prid/110655"
+    analyze_product(url)
