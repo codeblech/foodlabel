@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Update CORS settings to only allow your Netlify domain
+# Update CORS settings
 CORS(app, resources={
     r"/api/*": {
         "origins": [
@@ -14,7 +14,10 @@ CORS(app, resources={
             "https://foodxray.netlify.app",  # Production
         ],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "expose_headers": ["Content-Type"],
+        "supports_credentials": False,
+        "max_age": 600  # Cache preflight requests for 10 minutes
     }
 })
 
