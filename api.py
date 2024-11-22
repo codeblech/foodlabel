@@ -6,20 +6,26 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Update CORS settings
+# More comprehensive CORS configuration
 CORS(app, resources={
-    r"/api/*": {
-        "origins": [
-            "http://localhost:5173",  # Development
-            "https://foodxray.netlify.app",  # Production
-        ],
+    r"/*": {  # Match all routes
+        "origins": ["https://foodxray.netlify.app", "http://localhost:5173"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"],
-        "expose_headers": ["Content-Type"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+        "expose_headers": ["Content-Type", "Authorization"],
         "supports_credentials": False,
-        "max_age": 600  # Cache preflight requests for 10 minutes
+        "send_wildcard": False
     }
 })
+
+# Add CORS headers to all responses
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', 'https://foodxray.netlify.app')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'false')
+    return response
 
 # Configure upload settings
 UPLOAD_FOLDER = 'uploads'
