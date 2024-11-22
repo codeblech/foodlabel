@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Container,
   Typography,
@@ -13,9 +13,10 @@ import {
   CardContent,
   Divider,
   CircularProgress,
+  Tabs,
+  Tab,
 } from '@mui/material'
-import { Analytics, Link as LinkIcon, Assessment, History, Person, Insights } from '@mui/icons-material'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Analytics, Link as LinkIcon, Assessment, History, Person, Insights, CloudUpload, PhotoCamera } from '@mui/icons-material'
 
 // Create Material 3 theme with custom colors
 const theme = createTheme({
@@ -63,6 +64,10 @@ function ProductAnalyzer() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
+  const [uploadType, setUploadType] = useState('url') // 'url' or 'image'
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [activeTab, setActiveTab] = useState('extracted')
 
   const analyzeProduct = async (e) => {
     e.preventDefault()
@@ -70,13 +75,28 @@ function ProductAnalyzer() {
     setError(null)
 
     try {
-      const response = await fetch('http://localhost:5000/api/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      })
+      let response;
+      
+      if (uploadType === 'url') {
+        response = await fetch('http://localhost:5000/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url }),
+        });
+      } else {
+        // Get the file input element
+        const fileInput = document.getElementById('image-upload');
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        
+        response = await fetch('http://localhost:5000/api/analyze', {
+          method: 'POST',
+          // Remove the Content-Type header to let the browser set it with the boundary
+          body: formData,
+        });     
+      }
 
       const data = await response.json()
 
@@ -91,6 +111,24 @@ function ProductAnalyzer() {
       setLoading(false)
     }
   }
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      setSelectedFile(file)
+      // Create preview URL
+      const preview = URL.createObjectURL(file)
+      setPreviewUrl(preview)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
 
   return (
     <ThemeProvider theme={theme}>
@@ -122,19 +160,88 @@ function ProductAnalyzer() {
         </Typography>
 
         <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, width: '100%' }}>
+          <Box sx={{ mb: 2 }}>
+            <Tabs value={uploadType} onChange={(e, v) => setUploadType(v)}>
+              <Tab value="url" label="URL" icon={<LinkIcon />} />
+              <Tab value="image" label="Image" icon={<CloudUpload />} />
+            </Tabs>
+          </Box>
+
           <form onSubmit={analyzeProduct}>
-            <TextField
-              fullWidth
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter product URL"
-              required
-              variant="outlined"
-              InputProps={{
-                startAdornment: <LinkIcon sx={{ mr: 1, color: 'primary.light' }} />,
-              }}
-              sx={{ mb: 2 }}
-            />
+            {uploadType === 'url' ? (
+              <TextField
+                fullWidth
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Enter product URL"
+                required
+                variant="outlined"
+                InputProps={{
+                  startAdornment: <LinkIcon sx={{ mr: 1, color: 'primary.light' }} />,
+                }}
+                sx={{ mb: 2 }}
+              />
+            ) : (
+              <Box sx={{ mb: 2 }}>
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                  type="file"
+                  name="image"
+                  required
+                  capture="environment"
+                  onChange={handleFileSelect}
+                />
+                <label htmlFor="image-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    fullWidth
+                    startIcon={<CloudUpload />}
+                    sx={{ mb: 1, height: 56 }}
+                  >
+                    Upload Image
+                  </Button>
+                </label>
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  startIcon={<PhotoCamera />}
+                  onClick={() => {
+                    document.getElementById('image-upload').click()
+                  }}
+                  sx={{ height: 56 }}
+                >
+                  Take Photo
+                </Button>
+
+                {selectedFile && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Selected: {selectedFile.name}
+                    </Typography>
+                    {previewUrl && (
+                      <Box
+                        component="img"
+                        src={previewUrl}
+                        alt="Preview"
+                        sx={{
+                          width: '100%',
+                          maxHeight: 200,
+                          objectFit: 'contain',
+                          borderRadius: 1,
+                          border: '1px solid',
+                          borderColor: 'divider'
+                        }}
+                      />
+                    )}
+                  </Box>
+                )}
+              </Box>
+            )}
+
             <Button
               fullWidth
               type="submit"
@@ -175,23 +282,17 @@ function ProductAnalyzer() {
               Results
             </Typography>
 
-            <Tabs defaultValue="extracted" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger 
-                  value="extracted" 
-                  className="px-2 py-1 text-sm sm:text-base sm:px-4 sm:py-2"
-                >
-                  Extracted Information
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="analysis"
-                  className="px-2 py-1 text-sm sm:text-base sm:px-4 sm:py-2"
-                >
-                  Nutritional Analysis
-                </TabsTrigger>
-              </TabsList>
+            <Box sx={{ width: '100%' }}>
+              <Tabs 
+                value={activeTab} 
+                onChange={(e, newValue) => setActiveTab(newValue)}
+                sx={{ mb: 2 }}
+              >
+                <Tab label="Extracted Information" value="extracted" />
+                <Tab label="Nutritional Analysis" value="analysis" />
+              </Tabs>
 
-              <TabsContent value="extracted">
+              {activeTab === 'extracted' && (
                 <Card sx={{ width: '100%' }}>
                   <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <Typography variant="h6" color="primary.main" gutterBottom>
@@ -212,9 +313,9 @@ function ProductAnalyzer() {
                     </Box>
                   </CardContent>
                 </Card>
-              </TabsContent>
+              )}
 
-              <TabsContent value="analysis">
+              {activeTab === 'analysis' && (
                 <Card sx={{ width: '100%' }}>
                   <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <Typography variant="h6" color="primary.main" gutterBottom>
@@ -235,8 +336,8 @@ function ProductAnalyzer() {
                     </Box>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
+              )}
+            </Box>
           </Box>
         )}
       </Container>

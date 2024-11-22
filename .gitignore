@@ -1,3 +1,4 @@
 chromedriver
 *.env
 *.pyc
+frontend/dev-dist/
