@@ -201,16 +201,21 @@ function ProductAnalyzer() {
               >
                 <TabsTrigger 
                   value="url"
+                  className="data-[state=active]:shadow-sm focus:outline-none"
                   style={{
                     borderRadius: '8px',
                     transition: 'all 0.2s ease',
                     border: 'none',
                     flex: 1,
                     minWidth: '120px',
-                    backgroundColor: uploadType === 'url' ? '#006C51' : 'transparent',
+                    backgroundColor: uploadType === 'url' ? '#006C51' : 'white',
                     color: uploadType === 'url' ? '#ffffff' : '#006C51',
                     boxShadow: uploadType === 'url' ? '0 2px 4px rgba(0, 108, 81, 0.1)' : 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    outline: 'none',
+                    '&:hover': {
+                      backgroundColor: uploadType === 'url' ? '#006C51' : '#F1F5F4'
+                    }
                   }}
                 >
                   <Box sx={{ 
@@ -228,16 +233,21 @@ function ProductAnalyzer() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="image"
+                  className="data-[state=active]:shadow-sm focus:outline-none"
                   style={{
                     borderRadius: '8px',
                     transition: 'all 0.2s ease',
                     border: 'none',
                     flex: 1,
                     minWidth: '120px',
-                    backgroundColor: uploadType === 'image' ? '#006C51' : 'transparent',
+                    backgroundColor: uploadType === 'image' ? '#006C51' : 'white',
                     color: uploadType === 'image' ? '#ffffff' : '#006C51',
                     boxShadow: uploadType === 'image' ? '0 2px 4px rgba(0, 108, 81, 0.1)' : 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    outline: 'none',
+                    '&:hover': {
+                      backgroundColor: uploadType === 'image' ? '#006C51' : '#F1F5F4'
+                    }
                   }}
                 >
                   <Box sx={{ 
