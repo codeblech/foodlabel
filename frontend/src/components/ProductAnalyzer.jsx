@@ -12,9 +12,9 @@ import {
   Card,
   CardContent,
   Divider,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material'
-import { Analytics, Link as LinkIcon, Assessment } from '@mui/icons-material'
+import { Analytics, Link as LinkIcon, Assessment, History, Person, Insights } from '@mui/icons-material'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Create Material 3 theme with custom colors
@@ -40,12 +40,21 @@ const theme = createTheme({
     h1: {
       fontSize: '2.5rem',
       '@media (max-width:600px)': {
-        fontSize: '2rem',
+        fontSize: '1.8rem',
       },
     },
   },
   shape: {
     borderRadius: 16,
+  },
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 960,
+      lg: 1280,
+      xl: 1920,
+    },
   },
 })
 
@@ -85,14 +94,34 @@ function ProductAnalyzer() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Typography variant="h1" component="h1" gutterBottom align="center"
-          sx={{ color: 'primary.main', fontWeight: 'bold', mb: 4 }}>
-          <Analytics sx={{ mr: 1, verticalAlign: 'bottom' }} />
+      <Container 
+        maxWidth="lg" 
+        sx={{ 
+          py: { xs: 2, sm: 4 },
+          px: { xs: 2, sm: 3 },
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          pb: { xs: 7, sm: 7 }
+        }}
+      >
+        <Typography 
+          variant="h1" 
+          component="h1" 
+          gutterBottom 
+          align="center"
+          sx={{ 
+            color: 'primary.main', 
+            fontWeight: 'bold', 
+            mb: { xs: 2, sm: 4 },
+            fontSize: { xs: '1.8rem', sm: '2.5rem' }
+          }}
+        >
+          <Analytics sx={{ mr: 1, verticalAlign: 'bottom', fontSize: { xs: '1.8rem', sm: '2.5rem' } }} />
           Product Analyzer
         </Typography>
 
-        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+        <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, width: '100%' }}>
           <form onSubmit={analyzeProduct}>
             <TextField
               fullWidth
@@ -129,26 +158,42 @@ function ProductAnalyzer() {
         </Paper>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 4 }}>
+          <Alert severity="error" sx={{ mb: 4, width: '100%' }}>
             {error}
           </Alert>
         )}
 
         {result && (
-          <Box sx={{ display: 'grid', gap: 3 }}>
-            <Typography variant="h2" sx={{ fontSize: '1.75rem', color: 'primary.main' }}>
+          <Box sx={{ display: 'grid', gap: 3, width: '100%' }}>
+            <Typography 
+              variant="h2" 
+              sx={{ 
+                fontSize: { xs: '1.4rem', sm: '1.75rem' }, 
+                color: 'primary.main' 
+              }}
+            >
               Results
             </Typography>
 
             <Tabs defaultValue="extracted" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="extracted">Extracted Information</TabsTrigger>
-                <TabsTrigger value="analysis">Nutritional Analysis</TabsTrigger>
+                <TabsTrigger 
+                  value="extracted" 
+                  className="px-2 py-1 text-sm sm:text-base sm:px-4 sm:py-2"
+                >
+                  Extracted Information
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="analysis"
+                  className="px-2 py-1 text-sm sm:text-base sm:px-4 sm:py-2"
+                >
+                  Nutritional Analysis
+                </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="extracted">
-                <Card>
-                  <CardContent sx={{ p: 3 }}>
+                <Card sx={{ width: '100%' }}>
+                  <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <Typography variant="h6" color="primary.main" gutterBottom>
                       Product Details
                     </Typography>
@@ -170,8 +215,8 @@ function ProductAnalyzer() {
               </TabsContent>
 
               <TabsContent value="analysis">
-                <Card>
-                  <CardContent sx={{ p: 3 }}>
+                <Card sx={{ width: '100%' }}>
+                  <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
                     <Typography variant="h6" color="primary.main" gutterBottom>
                       Nutritional Insights
                     </Typography>
