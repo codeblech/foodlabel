@@ -40,3 +40,25 @@
 .read-the-docs {
   color: #888;
 }
+
+[data-state=active] {
+  font-weight: 500;
+}
+
+[data-state=inactive] {
+  opacity: 0.7;
+}
+
+.TabsTrigger {
+  opacity: 0.7;
+}
+
+.TabsTrigger[data-state="active"] {
+  opacity: 1;
+  background-color: #006C51 !important;
+  color: white !important;
+}
+
+.TabsTrigger:hover {
+  opacity: 0.9;
+}

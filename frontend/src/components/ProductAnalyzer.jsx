@@ -182,104 +182,192 @@ function ProductAnalyzer() {
             }}
           >
           <Box sx={{ mb: 2 }}>
-            <Tabs value={uploadType} onValueChange={setUploadType} defaultValue="url">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="url">
-                  <LinkIcon sx={{ mr: 1 }} /> URL
+            <Tabs 
+              value={uploadType} 
+              onValueChange={setUploadType} 
+              defaultValue="url"
+              className="w-full"
+            >
+              <TabsList 
+                className="grid w-full grid-cols-2"
+                style={{
+                  padding: '4px',
+                  background: 'white',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(0, 108, 81, 0.08)',
+                  minHeight: '48px',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
+                }}
+              >
+                <TabsTrigger 
+                  value="url"
+                  style={{
+                    borderRadius: '8px',
+                    transition: 'all 0.2s ease',
+                    border: 'none',
+                    flex: 1,
+                    minWidth: '120px',
+                    backgroundColor: uploadType === 'url' ? '#006C51' : 'transparent',
+                    color: uploadType === 'url' ? '#ffffff' : '#006C51',
+                    boxShadow: uploadType === 'url' ? '0 2px 4px rgba(0, 108, 81, 0.1)' : 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    gap: 1,
+                    width: '100%',
+                    py: 0.5,
+                    opacity: uploadType === 'url' ? 1 : 0.7
+                  }}>
+                    <LinkIcon sx={{ fontSize: '1.1rem' }} />
+                    <span>URL</span>
+                  </Box>
                 </TabsTrigger>
-                <TabsTrigger value="image">
-                  <CloudUpload sx={{ mr: 1 }} /> Image
+                <TabsTrigger 
+                  value="image"
+                  style={{
+                    borderRadius: '8px',
+                    transition: 'all 0.2s ease',
+                    border: 'none',
+                    flex: 1,
+                    minWidth: '120px',
+                    backgroundColor: uploadType === 'image' ? '#006C51' : 'transparent',
+                    color: uploadType === 'image' ? '#ffffff' : '#006C51',
+                    boxShadow: uploadType === 'image' ? '0 2px 4px rgba(0, 108, 81, 0.1)' : 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    gap: 1,
+                    width: '100%',
+                    py: 0.5,
+                    opacity: uploadType === 'image' ? 1 : 0.7
+                  }}>
+                    <CloudUpload sx={{ fontSize: '1.1rem' }} />
+                    <span>Image</span>
+                  </Box>
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </Box>
 
             <form onSubmit={analyzeProduct}>
-            {uploadType === 'url' ? (
+            <Box sx={{ 
+              width: '100%',
+              height: '140px', // Fixed height container for inputs
+              mb: 2
+            }}>
+              {uploadType === 'url' ? (
                 <TextField
                   fullWidth
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="Enter product URL"
                   size="small"
-                required
-                    InputProps={{
+                  required
+                  InputProps={{
                     startAdornment: <LinkIcon sx={{ mr: 1, color: 'primary.main' }} />,
                   }}
-                  sx={{ mb: 2 }}
+                  sx={{ 
+                    height: '56px',
+                    '& .MuiOutlinedInput-root': {
+                      height: '56px'
+                    }
+                  }}
                 />
-            ) : (
-              <Box sx={{ mb: 2 }}>
-                <input
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="image-upload"
-                  type="file"
-                  name="image"
-                  required
-                  capture="environment"
-                  onChange={handleFileSelect}
-                />
-                <label htmlFor="image-upload">
+              ) : (
+                <Box sx={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  height: '100%'
+                }}>
+                  <input
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    id="image-upload"
+                    type="file"
+                    name="image"
+                    required
+                    capture="environment"
+                    onChange={handleFileSelect}
+                  />
+                  <label htmlFor="image-upload" style={{ width: '100%' }}>
+                    <Button
+                      variant="outlined"
+                      component="span"
+                      fullWidth
+                      startIcon={<CloudUpload />}
+                      sx={{ 
+                        height: '56px',
+                        width: '100%'
+                      }}
+                    >
+                      Upload Image
+                    </Button>
+                  </label>
                   <Button
                     variant="outlined"
                     component="span"
                     fullWidth
-                    startIcon={<CloudUpload />}
-                    sx={{ mb: 1, height: 56 }}
+                    startIcon={<PhotoCamera />}
+                    onClick={() => {
+                      document.getElementById('image-upload').click()
+                    }}
+                    sx={{ 
+                      height: '56px',
+                      width: '100%'
+                    }}
                   >
-                    Upload Image
+                    Take Photo
                   </Button>
-                </label>
-                <Button
-                  variant="outlined"
-                  component="span"
-                  fullWidth
-                  startIcon={<PhotoCamera />}
-                  onClick={() => {
-                    document.getElementById('image-upload').click()
-                  }}
-                  sx={{ height: 56 }}
-                >
-                  Take Photo
-                </Button>
+                </Box>
+              )}
+            </Box>
 
-                {selectedFile && (
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      Selected: {selectedFile.name}
-                    </Typography>
-                    {previewUrl && (
-                      <Box
-                        component="img"
-                        src={previewUrl}
-                        alt="Preview"
-                        sx={{
-                          width: '100%',
-                          maxHeight: 200,
-                          objectFit: 'contain',
-                          borderRadius: 1,
-                          border: '1px solid',
-                          borderColor: 'divider'
-                        }}
-                      />
-                    )}
-                  </Box>
+            {selectedFile && (
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Selected: {selectedFile.name}
+                </Typography>
+                {previewUrl && (
+                  <Box
+                    component="img"
+                    src={previewUrl}
+                    alt="Preview"
+                    sx={{
+                      width: '100%',
+                      maxHeight: 200,
+                      objectFit: 'contain',
+                      borderRadius: 1,
+                      border: '1px solid',
+                      borderColor: 'divider'
+                    }}
+                  />
                 )}
               </Box>
             )}
 
-              <Button
-                fullWidth
-                type="submit"
-                disabled={loading}
-                variant="contained"
-                sx={{ py: 1 }}
-              >
-                {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : <Assessment sx={{ mr: 1 }} />}
-                {loading ? 'Analyzing...' : 'Analyze'}
-              </Button>
-            </form>
+            <Button
+              fullWidth
+              type="submit"
+              disabled={loading}
+              variant="contained"
+              sx={{ 
+                py: 1,
+                height: '56px'  // Consistent height
+              }}
+            >
+              {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : <Assessment sx={{ mr: 1 }} />}
+              {loading ? 'Analyzing...' : 'Analyze'}
+            </Button>
+          </form>
           </Paper>
 
           {/* Error Message */}
