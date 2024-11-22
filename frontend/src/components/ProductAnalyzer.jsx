@@ -140,18 +140,24 @@ function ProductAnalyzer() {
 
   const LoadingAnimation = () => (
     <Box sx={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      py: 4
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      zIndex: 1000
     }}>
       <Lottie
         animationData={analysisAnimation}
         loop={true}
         style={{
-          width: 200,
-          height: 200,
+          width: 250,
+          height: 250,
           margin: '0 auto'
         }}
       />
