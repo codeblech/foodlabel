@@ -6,25 +6,35 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# More comprehensive CORS configuration
+# Update CORS configuration
 CORS(app, resources={
-    r"/*": {  # Match all routes
-        "origins": ["https://foodxray.netlify.app", "http://localhost:5173"],
+    r"/*": {
+        "origins": [
+            "https://foodxray.netlify.app",
+            "http://localhost:5173",  # For local development
+            "http://localhost:3000"   # For local development
+        ],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
-        "expose_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": False,
-        "send_wildcard": False
+        "allow_headers": ["Content-Type", "Authorization", "Origin", "Accept"],
+        "max_age": 3600
     }
 })
 
-# Add CORS headers to all responses
+# Update the after_request handler
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://foodxray.netlify.app')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'false')
+    origin = request.headers.get('Origin')
+    allowed_origins = [
+        'https://foodxray.netlify.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
+    ]
+
+    if origin in allowed_origins:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        response.headers.add('Access-Control-Max-Age', '3600')
     return response
 
 # Configure upload settings
@@ -68,13 +78,13 @@ def analyze():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-        
+
         # Analyze the uploaded image
         result = analyze_product(filepath, is_url=False)
-        
+
         # Clean up uploaded file
         os.remove(filepath)
-        
+
         return jsonify(result)
 
     return jsonify({
