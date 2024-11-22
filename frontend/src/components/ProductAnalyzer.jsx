@@ -85,8 +85,10 @@ function ProductAnalyzer() {
     try {
       let response;
 
+      const API_URL = import.meta.env.VITE_API_URL || 'https://ciaokitty.pythonanywhere.com';
+
       if (uploadType === 'url') {
-        response = await fetch('http://localhost:5000/api/analyze', {
+        response = await fetch(`${API_URL}/api/analyze`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -99,7 +101,7 @@ function ProductAnalyzer() {
         const formData = new FormData();
         formData.append('image', fileInput.files[0]);
 
-        response = await fetch('http://localhost:5000/api/analyze', {
+        response = await fetch(`${API_URL}/api/analyze`, {
           method: 'POST',
           // Remove the Content-Type header to let the browser set it with the boundary
           body: formData,

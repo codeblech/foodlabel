@@ -5,7 +5,18 @@ import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+
+# Update CORS settings to only allow your Netlify domain
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:5173",  # Development
+            "https://foodxray.netlify.app",  # Production
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Configure upload settings
 UPLOAD_FOLDER = 'uploads'
