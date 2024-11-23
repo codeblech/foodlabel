@@ -6,13 +6,13 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# More comprehensive CORS configuration
+# More specific CORS configuration
 CORS(app, resources={
-    r"/*": {  # Match all routes
+    r"/*": {
         "origins": ["https://foodxray.netlify.app", "http://localhost:5173"],
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
-        "expose_headers": ["Content-Type", "Authorization"],
+        "allow_headers": ["Content-Type"],
+        "expose_headers": ["Content-Type"],
         "supports_credentials": False,
         "send_wildcard": False
     }
@@ -21,10 +21,16 @@ CORS(app, resources={
 # Add CORS headers to all responses
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', 'https://foodxray.netlify.app')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'false')
+    # Get the origin from the request
+    origin = request.headers.get('Origin')
+    allowed_origins = ["https://foodxray.netlify.app", "http://localhost:5173"]
+    
+    # Only allow specific origins
+    if origin in allowed_origins:
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     return response
 
 # Configure upload settings
@@ -38,8 +44,12 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/api/analyze', methods=['POST'])
+@app.route('/api/analyze', methods=['POST', 'OPTIONS'])
 def analyze():
+    if request.method == 'OPTIONS':
+        response = jsonify({'success': True})
+        return response
+        
     # Handle URL-based analysis
     if request.is_json:
         data = request.get_json()
