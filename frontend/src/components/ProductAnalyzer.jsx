@@ -92,7 +92,10 @@ function ProductAnalyzer() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Origin': 'https://foodxray.netlify.app',
+            'Accept': 'application/json',
           },
+          credentials: 'omit',
           body: JSON.stringify({ url }),
         });
       } else {
@@ -103,7 +106,11 @@ function ProductAnalyzer() {
 
         response = await fetch(`${API_URL}/api/analyze`, {
           method: 'POST',
-          // Remove the Content-Type header to let the browser set it with the boundary
+          headers: {
+            'Origin': 'https://foodxray.netlify.app',
+            'Accept': 'application/json',
+          },
+          credentials: 'omit',
           body: formData,
         });
       }
