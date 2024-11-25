@@ -7,6 +7,7 @@ from prompts import analyze_food_prompt, extract_ingredients_and_nutrition_promp
 from flask import jsonify
 import PIL.Image
 import pandas as pd
+from mistralai import Mistral
 
 def load_reference_data():
     """Load and prepare reference data from CSV files"""
@@ -61,11 +62,12 @@ def analyze_product_image(image_path):
     try:
         print("\n=== Starting Image Analysis ===")
 
-        # Setup Gemini
-        print("\n1. Configuring Gemini...")
+        # Setup both APIs
+        print("\n1. Configuring APIs...")
         load_dotenv()
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        model = genai.GenerativeModel("gemini-1.5-pro")
+        gemini_model = genai.GenerativeModel("gemini-1.5-pro")
+        mistral_client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 
         # Load reference data
         reference_data = load_reference_data()
@@ -78,7 +80,7 @@ def analyze_product_image(image_path):
 
         # Extract ingredients and nutrition data
         print("\n3. Extracting ingredients and nutrition data...")
-        extraction_response = model.generate_content([extract_ingredients_and_nutrition_prompt, image])
+        extraction_response = gemini_model.generate_content([extract_ingredients_and_nutrition_prompt, image])
         print("Raw extraction response:", extraction_response.text)
 
         extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
@@ -98,10 +100,18 @@ def analyze_product_image(image_path):
 
         # Analyze the data
         print("\n4. Analyzing nutritional data...")
-        analysis_prompt = analyze_food_prompt + "\n\nAnalyze this product data:\n" + json.dumps(extracted_data)
-        analysis_response = model.generate_content(analysis_prompt)
-        analysis_response_cleaned = analysis_response.text.strip().strip("```json").strip()
-        analysis_response_cleaned = json.loads(analysis_response_cleaned)
+        analysis_messages = [
+            {"role": "system", "content": analyze_food_prompt},
+            {"role": "user", "content": f"Analyze this product data:\n{json.dumps(extracted_data)}"}
+        ]
+        
+        analysis_response = mistral_client.chat.complete(
+            model="mistral-large-latest",
+            messages=analysis_messages,
+            response_format={"type": "json_object"}
+        )
+        analysis_text = analysis_response.choices[0].message.content
+        analysis_response_cleaned = json.loads(analysis_text.strip().strip("```json").strip())
 
         print("\n=== Analysis Results ===")
         print(analysis_response_cleaned)
@@ -133,16 +143,17 @@ def analyze_product_url(url):
     try:
         print("\n=== Starting Product Analysis ===")
 
+        # Setup both APIs
+        print("\n2. Configuring APIs...")
+        load_dotenv()
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        gemini_model = genai.GenerativeModel("gemini-1.5-pro")
+        mistral_client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+
         # Extract and process images
         print("\n1. Extracting images from URL...")
         image_urls = extract_image_urls_from_url(url)
         image_urls = [modify_image_url(url) for url in image_urls]
-
-        # Setup Gemini
-        print("\n2. Configuring Gemini...")
-        load_dotenv()
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        model = genai.GenerativeModel("gemini-1.5-pro")
 
         # Process images
         print("\n3. Processing images...")
@@ -152,22 +163,25 @@ def analyze_product_url(url):
             if open_image_from_url(image_url) is not None
         ]
 
-        # First get ingredients and nutrition data
+        # Keep Gemini for image processing
         print("\n4. Extracting ingredients and nutrition data...")
-        extraction_response = model.generate_content([extract_ingredients_and_nutrition_prompt] + image_list)
-        print("Raw extraction response:", extraction_response.text)
-
+        extraction_response = gemini_model.generate_content([extract_ingredients_and_nutrition_prompt] + image_list)
         extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
-        print("\nExtracted Data:")
-        print("Ingredients:", extracted_data["ingredients"])
-        print("Nutrition:", extracted_data["nutritional label"])
 
-        # Then analyze the data
+        # Switch to Mistral for analysis
         print("\n5. Analyzing nutritional data...")
-        analysis_prompt = analyze_food_prompt + "\n\nAnalyze this product data:\n" + json.dumps(extracted_data)
-        analysis_response = model.generate_content(analysis_prompt)
-        analysis_response_cleaned = analysis_response.text.strip().strip("```json").strip()
-        analysis_response_cleaned = json.loads(analysis_response_cleaned)
+        analysis_messages = [
+            {"role": "system", "content": analyze_food_prompt},
+            {"role": "user", "content": f"Analyze this product data:\n{json.dumps(extracted_data)}"}
+        ]
+        
+        analysis_response = mistral_client.chat.complete(
+            model="mistral-large-latest",
+            messages=analysis_messages,
+            response_format={"type": "json_object"}
+        )
+        analysis_text = analysis_response.choices[0].message.content
+        analysis_response_cleaned = json.loads(analysis_text.strip().strip("```json").strip())
 
         print("\n=== Analysis Results ===")
         print(analysis_response_cleaned)
