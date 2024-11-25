@@ -3,6 +3,7 @@ from flask_cors import CORS
 from analyze import analyze_product
 import os
 from werkzeug.utils import secure_filename
+from blinkit import extract_image_urls_from_url
 
 app = Flask(__name__)
 
@@ -55,7 +56,7 @@ def analyze():
     if request.method == 'OPTIONS':
         response = jsonify({'success': True})
         return response
-        
+
     # Handle URL-based analysis
     if request.is_json:
         data = request.get_json()
@@ -64,7 +65,15 @@ def analyze():
                 "success": False,
                 "error": "URL is required"
             }), 400
-        return jsonify(analyze_product(data['url'], is_url=True))
+
+        # Get product name and image URLs
+        product_name, image_urls = extract_image_urls_from_url(data['url'])
+        result = analyze_product(data['url'], is_url=True)
+
+        if result["success"]:
+            result["data"]["product_name"] = product_name
+
+        return jsonify(result)
 
     # Handle image upload analysis
     if 'image' not in request.files:

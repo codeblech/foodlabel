@@ -359,6 +359,18 @@ const FOOD_FACTS = [
   }
 ];
 
+// Add this near the top of the file, after other imports
+const saveToRecents = (productName, analysisData) => {
+  const timestamp = Date.now()
+  const key = `analysis_${timestamp}`
+  const data = {
+    timestamp,
+    productName,
+    data: analysisData
+  }
+  localStorage.setItem(key, JSON.stringify(data))
+}
+
 function ProductAnalyzer({
   result,
   setResult,
@@ -604,6 +616,10 @@ function ProductAnalyzer({
       if (!data.success) {
         throw new Error(data.error)
       }
+
+      // Save to localStorage with product name
+      const productName = data.data.product_name || `Analysis ${new Date().toLocaleString()}`
+      saveToRecents(productName, data.data)
 
       setResult(data.data)
     } catch (err) {
