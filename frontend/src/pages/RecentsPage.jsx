@@ -9,8 +9,10 @@ import {
   Grid,
 } from '@mui/material'
 import { Delete, Analytics } from '@mui/icons-material'
+import { useNavigate } from 'react-router-dom'
 
 function RecentsPage() {
+  const navigate = useNavigate()
   const [recentAnalyses, setRecentAnalyses] = useState([])
 
   useEffect(() => {
@@ -39,6 +41,11 @@ function RecentsPage() {
   const handleDelete = (timestamp) => {
     localStorage.removeItem(`analysis_${timestamp}`)
     setRecentAnalyses(prev => prev.filter(item => item.timestamp !== timestamp))
+  }
+
+  const handleCardClick = (analysis) => {
+    // Set the analysis in App's state and navigate to analyzer
+    navigate('/', { state: { analysis } })
   }
 
   return (
@@ -71,7 +78,14 @@ function RecentsPage() {
         <Grid container spacing={3}>
           {recentAnalyses.map((analysis) => (
             <Grid item xs={12} md={6} key={analysis.timestamp}>
-              <Card>
+              <Card
+                sx={{
+                  height: '100%',
+                  cursor: 'pointer',
+                  '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' }
+                }}
+                onClick={() => handleCardClick(analysis)}
+              >
                 <CardContent>
                   <Box sx={{
                     display: 'flex',
@@ -79,11 +93,24 @@ function RecentsPage() {
                     alignItems: 'flex-start',
                     mb: 2
                   }}>
-                    <Typography variant="h6" component="h2">
+                    <Typography
+                      variant="h6"
+                      component="h2"
+                      sx={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical'
+                      }}
+                    >
                       {analysis.productName || 'Unknown Product'}
                     </Typography>
                     <IconButton
-                      onClick={() => handleDelete(analysis.timestamp)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(analysis.timestamp);
+                      }}
                       size="small"
                       color="error"
                     >

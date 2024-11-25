@@ -647,6 +647,27 @@ function ProductAnalyzer({
               p: { xs: 1.5, sm: 2 },
               '&:last-child': { pb: { xs: 1.5, sm: 2 } }
             }}>
+              {/* Add Product Name Section */}
+              {result.product_name && (
+                <Box sx={{ mb: 2.5 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      mb: 1.5,
+                      color: 'primary.main',
+                      fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                      fontWeight: 600
+                    }}
+                  >
+                    {result.product_name}
+                  </Typography>
+                  <Divider sx={{ mb: 2.5 }} />
+                </Box>
+              )}
+
               {/* Ingredients Section */}
               {result.extracted_data.ingredients?.length > 0 && (
                 <Box sx={{ mb: 2.5 }}>

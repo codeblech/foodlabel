@@ -84,13 +84,16 @@ def extract_image_urls(driver, url):
         )
     except TimeoutException:
         print("Timed out waiting for product images to load.")
-        return None, []
+        return product_name, []  # Return product name even if no images found
 
     images = driver.find_elements(By.CSS_SELECTOR, image_selector)
-    image_urls = [img.get_attribute("src") for img in images]
+    image_urls = [img.get_attribute("src") for img in images if img.get_attribute("src")]
     print(f"Extracted {len(image_urls)} image URLs.")
 
-    return product_name, image_urls
+    # Modify image URLs right here
+    modified_urls = [modify_image_url(url) for url in image_urls]
+
+    return product_name, modified_urls  # Return modified URLs directly
 
 
 def extract_image_urls_from_url(url):
@@ -140,7 +143,7 @@ if __name__ == "__main__":
     print("Starting the image extraction process...")
     url = "https://blinkit.com/prn/britannia-fruit-cake/prid/336628"
     product_name, image_urls = extract_image_urls_from_url(url)
-    image_urls = [modify_image_url(url) for url in image_urls]
+    modified_image_urls = [modify_image_url(url) for url in image_urls]
 
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     model = genai.GenerativeModel("gemini-1.5-pro")
@@ -148,7 +151,7 @@ if __name__ == "__main__":
     print("Opening images and generating content...")
     image_list = [
         open_image_from_url(image_url)
-        for image_url in image_urls
+        for image_url in modified_image_urls
         if open_image_from_url(image_url) is not None
     ]
     prompt = [analyze_food_prompt]
