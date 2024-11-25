@@ -40,6 +40,55 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Lottie from 'lottie-react'
 import analysisAnimation from '@/assets/analysis-animation.json'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+// Helper function to normalize keys for case-insensitive lookup
+const normalizeKey = (key) => key.toLowerCase().trim();
+
+// Update FDA_DAILY_VALUES to use lowercase keys
+const FDA_DAILY_VALUES = Object.fromEntries(
+  Object.entries({
+    "Added sugars": "50g",
+    "Biotin": "30mcg",
+    "Calcium": "1300mg",
+    "Chloride": "2300mg",
+    "Choline": "550mg",
+    "Cholesterol": "300mg",
+    "Chromium": "35mcg",
+    "Copper": "0.9mg",
+    "Dietary Fiber": "28g",
+    "Fat": "78g",
+    "Folate/Folic Acid": "400mcg DFE",
+    "Iodine": "150mcg",
+    "Iron": "18mg",
+    "Magnesium": "420mg",
+    "Manganese": "2.3mg",
+    "Molybdenum": "45mcg",
+    "Niacin": "16mg NE",
+    "Pantothenic Acid": "5mg",
+    "Phosphorus": "1250mg",
+    "Potassium": "4700mg",
+    "Protein": "50g",
+    "Riboflavin": "1.3mg",
+    "Saturated fat": "20g",
+    "Selenium": "55mcg",
+    "Sodium": "2300mg",
+    "Thiamin": "1.2mg",
+    "Total carbohydrate": "275g",
+    "Vitamin A": "900mcg RAE",
+    "Vitamin B6": "1.7mg",
+    "Vitamin B12": "2.4mcg",
+    "Vitamin C": "90mg",
+    "Vitamin D": "20mcg",
+    "Vitamin E": "15mg",
+    "Vitamin K": "120mcg",
+    "Zinc": "11mg",
+  }).map(([key, value]) => [normalizeKey(key), value])
+);
 
 // Update theme for better responsiveness
 const theme = createTheme({
@@ -77,7 +126,8 @@ function ProductAnalyzer({
   loading,
   setLoading,
   error,
-  setError
+  setError,
+  onIngredientClick
 }) {
   const [url, setUrl] = useState('')
   const [uploadType, setUploadType] = useState('url')
@@ -96,77 +146,7 @@ function ProductAnalyzer({
     macronutrients: false,
   });
 
-  const analyzeProduct = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    try {
-      let response;
-
-      // const API_URL = import.meta.env.VITE_API_URL || 'https://ciaokitty.pythonanywhere.com';
-      const API_URL = "http://127.0.0.1:5000"
-
-      if (uploadType === 'url') {
-        response = await fetch(`${API_URL}/api/analyze`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Origin': 'https://foodxray.netlify.app',
-            'Accept': 'application/json',
-          },
-          credentials: 'omit',
-          body: JSON.stringify({ url }),
-        });
-      } else {
-        // Get the file input element
-        const fileInput = document.getElementById('image-upload');
-        const formData = new FormData();
-        formData.append('image', fileInput.files[0]);
-
-        response = await fetch(`${API_URL}/api/analyze`, {
-          method: 'POST',
-          headers: {
-            'Origin': 'https://foodxray.netlify.app',
-            'Accept': 'application/json',
-          },
-          credentials: 'omit',
-          body: formData,
-        });
-      }
-
-      const data = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error)
-      }
-
-      setResult(data.data)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-      setSelectedFile(file)
-      // Create preview URL
-      const preview = URL.createObjectURL(file)
-      setPreviewUrl(preview)
-    }
-  }
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl)
-      }
-    }
-  }, [previewUrl])
-
+  // 1. Define LoadingAnimation component first
   const LoadingAnimation = () => (
     <Box sx={{
       position: 'fixed',
@@ -210,6 +190,7 @@ function ProductAnalyzer({
     </Box>
   )
 
+  // 2. Define SafetyClassification component
   const SafetyClassification = ({ ingredient, classifications }) => {
     if (!ingredient || !classifications) return null;
 
@@ -241,6 +222,43 @@ function ProductAnalyzer({
     )
   }
 
+  // 3. Define IngredientChip component
+  const IngredientChip = ({ ingredient }) => (
+    <Chip
+      label={ingredient}
+      onClick={() => onIngredientClick({ name: ingredient })}
+      sx={{
+        maxWidth: '100%',
+        height: 'auto',
+        cursor: 'pointer',
+        '& .MuiChip-label': {
+          whiteSpace: 'normal',
+          px: 1,
+          py: 0.5,
+          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+          lineHeight: 1.3
+        },
+        borderColor: 'primary.light',
+        '&:hover': {
+          bgcolor: 'primary.light',
+          color: 'white'
+        }
+      }}
+      variant="outlined"
+    />
+  )
+
+  // 4. Define handler functions
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      setSelectedFile(file)
+      // Create preview URL
+      const preview = URL.createObjectURL(file)
+      setPreviewUrl(preview)
+    }
+  }
+
   const handleSectionToggle = (section) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -248,6 +266,57 @@ function ProductAnalyzer({
     }));
   };
 
+  const analyzeProduct = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      let response;
+      const API_URL = "http://127.0.0.1:5000"
+
+      if (uploadType === 'url') {
+        response = await fetch(`${API_URL}/api/analyze`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': 'https://foodxray.netlify.app',
+            'Accept': 'application/json',
+          },
+          credentials: 'omit',
+          body: JSON.stringify({ url }),
+        });
+      } else {
+        const fileInput = document.getElementById('image-upload');
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+
+        response = await fetch(`${API_URL}/api/analyze`, {
+          method: 'POST',
+          headers: {
+            'Origin': 'https://foodxray.netlify.app',
+            'Accept': 'application/json',
+          },
+          credentials: 'omit',
+          body: formData,
+        });
+      }
+
+      const data = await response.json()
+
+      if (!data.success) {
+        throw new Error(data.error)
+      }
+
+      setResult(data.data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 5. Define tabs array after all component definitions
   const tabs = [
     {
       value: 'extracted',
@@ -290,28 +359,7 @@ function ProductAnalyzer({
                     width: '100%'
                   }}>
                     {result.extracted_data.ingredients.map((ingredient, index) => (
-                      <Chip
-                        key={index}
-                        label={ingredient}
-                        size="small"
-                        sx={{
-                          maxWidth: '100%',
-                          height: 'auto',
-                          '& .MuiChip-label': {
-                            whiteSpace: 'normal',
-                            px: 1,
-                            py: 0.5,
-                            fontSize: { xs: '0.75rem', sm: '0.8rem' },
-                            lineHeight: 1.3
-                          },
-                          borderColor: 'primary.light',
-                          '&:hover': {
-                            bgcolor: 'primary.light',
-                            color: 'white'
-                          }
-                        }}
-                        variant="outlined"
-                      />
+                      <IngredientChip key={index} ingredient={ingredient} />
                     ))}
                   </Box>
                 </Box>
@@ -351,46 +399,75 @@ function ProductAnalyzer({
                   >
                     {Object.entries(result.extracted_data['nutritional label']).map(([key, value]) => (
                       <Grid item xs={6} sm={4} md={3} key={key}>
-                        <Box
-                          sx={{
-                            p: { xs: 0.75, sm: 1.25 },
-                            border: '1px solid',
-                            borderColor: 'primary.light',
-                            borderRadius: 1,
-                            textAlign: 'center',
-                            height: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            '&:hover': {
-                              bgcolor: 'primary.50'
-                            }
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: 'text.secondary',
-                              fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                              mb: 0.5,
-                              lineHeight: 1.2,
-                              display: 'block'
-                            }}
-                          >
-                            {key}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              color: 'primary.main',
-                              fontWeight: 600,
-                              fontSize: { xs: '0.85rem', sm: '0.9rem' },
-                              lineHeight: 1.2
-                            }}
-                          >
-                            {value}
-                          </Typography>
-                        </Box>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Box
+                              sx={{
+                                p: { xs: 0.75, sm: 1.25 },
+                                border: '1px solid',
+                                borderColor: 'primary.light',
+                                borderRadius: 1,
+                                textAlign: 'center',
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  bgcolor: 'primary.50'
+                                }
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: 'text.secondary',
+                                  fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                                  mb: 0.5,
+                                  lineHeight: 1.2,
+                                  display: 'block'
+                                }}
+                              >
+                                {key}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: 'primary.main',
+                                  fontWeight: 600,
+                                  fontSize: { xs: '0.85rem', sm: '0.9rem' },
+                                  lineHeight: 1.2
+                                }}
+                              >
+                                {value}
+                              </Typography>
+                            </Box>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80">
+                            <div className="grid gap-4">
+                              <div className="space-y-2">
+                                <h4 className="font-medium leading-none">Daily Value</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {FDA_DAILY_VALUES[normalizeKey(key)]
+                                    ? `Recommended daily value: ${FDA_DAILY_VALUES[normalizeKey(key)]}`
+                                    : "No daily value recommendation available"}
+                                </p>
+                              </div>
+                              {FDA_DAILY_VALUES[normalizeKey(key)] && (
+                                <div className="grid gap-2">
+                                  <div className="grid grid-cols-3 items-center gap-4">
+                                    <span className="text-sm">Current</span>
+                                    <span className="text-sm font-semibold col-span-2">{value}</span>
+                                  </div>
+                                  <div className="grid grid-cols-3 items-center gap-4">
+                                    <span className="text-sm">Daily Value</span>
+                                    <span className="text-sm font-semibold col-span-2">{FDA_DAILY_VALUES[normalizeKey(key)]}</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </Grid>
                     ))}
                   </Grid>
@@ -713,9 +790,9 @@ function ProductAnalyzer({
                                 gap: 1,
                                 bgcolor: 'white'
                               }}>
-                                <Typography 
-                                  variant="subtitle2" 
-                                  sx={{ 
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
                                     color: 'text.secondary',
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.5px',
@@ -756,9 +833,9 @@ function ProductAnalyzer({
                                 gap: 1,
                                 bgcolor: 'white'
                               }}>
-                                <Typography 
-                                  variant="subtitle2" 
-                                  sx={{ 
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
                                     color: 'text.secondary',
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.5px',
@@ -778,8 +855,8 @@ function ProductAnalyzer({
                                       fontWeight: 500,
                                       whiteSpace: 'normal',
                                       display: '-webkit-box',
-                                      '-webkit-line-clamp': 2,
-                                      '-webkit-box-orient': 'vertical',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
                                       overflow: 'hidden'
                                     }
                                   }}
@@ -800,9 +877,9 @@ function ProductAnalyzer({
                                 gap: 1,
                                 bgcolor: 'white'
                               }}>
-                                <Typography 
-                                  variant="subtitle2" 
-                                  sx={{ 
+                                <Typography
+                                  variant="subtitle2"
+                                  sx={{
                                     color: 'text.secondary',
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.5px',
@@ -819,7 +896,7 @@ function ProductAnalyzer({
                                   borderRadius: 1,
                                   p: 2
                                 }}>
-                                  <Typography 
+                                  <Typography
                                     variant="body1"
                                     sx={{
                                       color: 'primary.main',
@@ -1256,7 +1333,7 @@ function ProductAnalyzer({
             result && (
               <Box sx={{ width: '100%' }}>
                 <Tabs defaultValue="extracted">
-                  <TabsList 
+                  <TabsList
                     className="grid w-full grid-cols-2"
                     style={{
                       padding: '4px',

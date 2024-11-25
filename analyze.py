@@ -7,6 +7,7 @@ from prompts import analyze_food_prompt, extract_ingredients_and_nutrition_promp
 from flask import jsonify
 import PIL.Image
 import pandas as pd
+from googli import analyze_google_sync
 from mistralai import Mistral
 
 def load_reference_data():
@@ -98,6 +99,10 @@ def analyze_product_image(image_path):
         # Add safety data to the analysis
         extracted_data["safety_classifications"] = safety_data
 
+        # Add Google search results for ingredients
+        google_results = analyze_google_sync(extracted_data["ingredients"])
+        extracted_data["ingredient_search_results"] = google_results
+
         # Analyze the data
         print("\n4. Analyzing nutritional data...")
         analysis_messages = [
@@ -167,6 +172,16 @@ def analyze_product_url(url):
         print("\n4. Extracting ingredients and nutrition data...")
         extraction_response = gemini_model.generate_content([extract_ingredients_and_nutrition_prompt] + image_list)
         extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
+        print("\nExtracted Data:")
+        print("Ingredients:", extracted_data["ingredients"])
+        print("Nutrition:", extracted_data["nutritional label"])
+
+        # After extracting ingredients and nutrition data
+        extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
+
+        # Add Google search results for ingredients
+        google_results = analyze_google_sync(extracted_data["ingredients"])
+        extracted_data["ingredient_search_results"] = google_results
 
         # Switch to Mistral for analysis
         print("\n5. Analyzing nutritional data...")
