@@ -11,8 +11,9 @@ CORS(app, resources={
     r"/*": {
         "origins": [
             "https://foodxray.netlify.app",
-            "http://localhost:5173",  # For local development
-            "http://localhost:3000"   # For local development
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:3000"
         ],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Origin", "Accept"],
@@ -27,6 +28,7 @@ def after_request(response):
     allowed_origins = [
         'https://foodxray.netlify.app',
         'http://localhost:5173',
+        'http://127.0.0.1:5173',
         'http://localhost:3000'
     ]
 
