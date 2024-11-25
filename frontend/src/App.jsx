@@ -9,6 +9,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { useState } from 'react'
 
 // Move theme creation here from ProductAnalyzer
 const theme = createTheme({
@@ -52,11 +53,25 @@ const theme = createTheme({
 })
 
 function App() {
+  // Lift state up
+  const [analysisResult, setAnalysisResult] = useState(null)
+  const [analysisLoading, setAnalysisLoading] = useState(false)
+  const [analysisError, setAnalysisError] = useState(null)
+
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ProductAnalyzer />} />
+          <Route path="/" element={
+            <ProductAnalyzer
+              result={analysisResult}
+              setResult={setAnalysisResult}
+              loading={analysisLoading}
+              setLoading={setAnalysisLoading}
+              error={analysisError}
+              setError={setAnalysisError}
+            />
+          } />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/recents" element={<RecentsPage />} />
         </Routes>

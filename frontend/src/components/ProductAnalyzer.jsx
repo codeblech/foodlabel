@@ -67,12 +67,16 @@ const theme = createTheme({
   },
 })
 
-function ProductAnalyzer() {
+function ProductAnalyzer({
+  result,
+  setResult,
+  loading,
+  setLoading,
+  error,
+  setError
+}) {
   const [url, setUrl] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState(null)
-  const [error, setError] = useState(null)
-  const [uploadType, setUploadType] = useState('url') // 'url' or 'image'
+  const [uploadType, setUploadType] = useState('url')
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
   const [activeTab, setActiveTab] = useState('extracted')
@@ -85,7 +89,8 @@ function ProductAnalyzer() {
     try {
       let response;
 
-      const API_URL = import.meta.env.VITE_API_URL || 'https://ciaokitty.pythonanywhere.com';
+      // const API_URL = import.meta.env.VITE_API_URL || 'https://ciaokitty.pythonanywhere.com';
+      const API_URL = "http://127.0.0.1:5000"
 
       if (uploadType === 'url') {
         response = await fetch(`${API_URL}/api/analyze`, {
