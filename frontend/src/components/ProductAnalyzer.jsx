@@ -1311,11 +1311,12 @@ function ProductAnalyzer({
           disableGutters
           sx={{
             px: { xs: 1, sm: 2, md: 3 },
-            py: { xs: 1, sm: 2 },
+            py: { xs: 4, sm: 5 },
             width: '100%',
             maxWidth: { sm: '600px', md: '900px', lg: '1200px' },
             mx: 'auto',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            mt: '64px'
           }}
         >
           {/* Header */}
@@ -1549,10 +1550,12 @@ function ProductAnalyzer({
             result && (
               <Box sx={{
                 width: '100%',
+                mb: 4,
                 '& .tab-content': {
                   width: '100%',
                   maxWidth: '100%',
-                  mx: 'auto'
+                  mx: 'auto',
+                  pb: 4
                 }
               }}>
                 <Tabs
