@@ -15,6 +15,8 @@ import {
   CircularProgress,
   Grid,
   Chip,
+  Collapse,
+  IconButton,
 } from '@mui/material'
 import {
   Analytics,
@@ -32,6 +34,8 @@ import {
   InfoOutlined,
   SecurityOutlined,
   GppMaybeOutlined,
+  ExpandMore,
+  ExpandLess,
 } from '@mui/icons-material'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Lottie from 'lottie-react'
@@ -80,6 +84,17 @@ function ProductAnalyzer({
   const [selectedFile, setSelectedFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
   const [activeTab, setActiveTab] = useState('extracted')
+  const [expandedSections, setExpandedSections] = useState({
+    nutritional: false,
+    keyNutrients: false,
+    health: false,
+    diet: false,
+    detailed: false,
+    safety: false,
+    overallRating: false,
+    calories: false,
+    macronutrients: false,
+  });
 
   const analyzeProduct = async (e) => {
     e.preventDefault()
@@ -225,6 +240,13 @@ function ProductAnalyzer({
       </Box>
     )
   }
+
+  const handleSectionToggle = (section) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const tabs = [
     {
@@ -387,318 +409,562 @@ function ProductAnalyzer({
         result?.analysis && (
           <Card>
             <CardContent>
-              {/* Nutritional Summary Section */}
-              {result.analysis.nutritional_summary && (
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                    <Assessment /> Nutritional Summary
-                  </Typography>
-                  <Grid container spacing={2}>
-                    {/* Overall Rating */}
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{
-                        p: 2,
-                        border: '1px solid',
-                        borderColor: 'primary.light',
-                        borderRadius: 2,
-                        bgcolor: 'background.paper'
-                      }}>
-                        <Typography variant="subtitle2" gutterBottom>Overall Rating</Typography>
-                        <Box sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: 1
-                        }}>
-                          <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.5
-                          }}>
-                            {[1,2,3,4,5].map((star) => (
-                              <Box
-                                key={star}
+              {/* Analysis Sections */}
+              <Grid container spacing={2}>
+                {/* Nutritional Summary Button */}
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    onClick={() => handleSectionToggle('nutritional')}
+                    sx={{
+                      justifyContent: 'space-between',
+                      p: 2,
+                      bgcolor: expandedSections.nutritional ? 'primary.main' : 'white',
+                      color: expandedSections.nutritional ? 'white' : 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
+                      '&:hover': {
+                        bgcolor: expandedSections.nutritional ? 'primary.dark' : 'primary.50',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Assessment />
+                      Nutritional Summary
+                    </Box>
+                    {expandedSections.nutritional ? <ExpandLess /> : <ExpandMore />}
+                  </Button>
+                  <Collapse in={expandedSections.nutritional} timeout="auto">
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      {result.analysis.nutritional_summary && (
+                        <Box sx={{ mb: 3 }}>
+                          <Grid container spacing={2}>
+                            {/* Overall Rating Section */}
+                            <Grid item xs={12}>
+                              <Button
+                                fullWidth
+                                onClick={() => handleSectionToggle('overallRating')}
                                 sx={{
-                                  width: 35,
-                                  height: 35,
-                                  borderRadius: '8px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  bgcolor: star <= result.analysis.nutritional_summary.overall_rating
-                                    ? 'primary.main'
-                                    : 'grey.100',
-                                  color: star <= result.analysis.nutritional_summary.overall_rating
-                                    ? 'white'
-                                    : 'grey.400',
-                                  transition: 'all 0.2s ease',
-                                  fontWeight: 'bold'
+                                  justifyContent: 'space-between',
+                                  p: 1.5,
+                                  bgcolor: expandedSections.overallRating ? 'primary.light' : 'white',
+                                  color: 'primary.main',
+                                  border: '1px solid',
+                                  borderColor: 'primary.light',
+                                  '&:hover': {
+                                    bgcolor: expandedSections.overallRating ? 'primary.light' : 'primary.50',
+                                  },
                                 }}
                               >
-                                {star}
+                                <Typography variant="subtitle2">Overall Rating</Typography>
+                                {expandedSections.overallRating ? <ExpandLess /> : <ExpandMore />}
+                              </Button>
+                              <Collapse in={expandedSections.overallRating} timeout="auto">
+                                <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderTop: 0, borderRadius: '0 0 8px 8px' }}>
+                                  <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    gap: 1
+                                  }}>
+                                    <Box sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.5
+                                    }}>
+                                      {[1,2,3,4,5].map((star) => (
+                                        <Box
+                                          key={star}
+                                          sx={{
+                                            width: 35,
+                                            height: 35,
+                                            borderRadius: '8px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            bgcolor: star <= result.analysis.nutritional_summary.overall_rating
+                                              ? 'primary.main'
+                                              : 'grey.100',
+                                            color: star <= result.analysis.nutritional_summary.overall_rating
+                                              ? 'white'
+                                              : 'grey.400',
+                                            transition: 'all 0.2s ease',
+                                            fontWeight: 'bold'
+                                          }}
+                                        >
+                                          {star}
+                                        </Box>
+                                      ))}
+                                    </Box>
+                                    <Typography variant="h4" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+                                      {result.analysis.nutritional_summary.overall_rating}/5
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                              </Collapse>
+                            </Grid>
+
+                            {/* Calories Assessment Section */}
+                            <Grid item xs={12}>
+                              <Button
+                                fullWidth
+                                onClick={() => handleSectionToggle('calories')}
+                                sx={{
+                                  justifyContent: 'space-between',
+                                  p: 1.5,
+                                  bgcolor: expandedSections.calories ? 'primary.light' : 'white',
+                                  color: 'primary.main',
+                                  border: '1px solid',
+                                  borderColor: 'primary.light',
+                                  '&:hover': {
+                                    bgcolor: expandedSections.calories ? 'primary.light' : 'primary.50',
+                                  },
+                                }}
+                              >
+                                <Typography variant="subtitle2">Calories Assessment</Typography>
+                                {expandedSections.calories ? <ExpandLess /> : <ExpandMore />}
+                              </Button>
+                              <Collapse in={expandedSections.calories} timeout="auto">
+                                <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderTop: 0, borderRadius: '0 0 8px 8px' }}>
+                                  <Typography variant="body1">
+                                    {result.analysis.nutritional_summary.calories_assessment}
+                                  </Typography>
+                                </Box>
+                              </Collapse>
+                            </Grid>
+
+                            {/* Macronutrient Balance Section */}
+                            <Grid item xs={12}>
+                              <Button
+                                fullWidth
+                                onClick={() => handleSectionToggle('macronutrients')}
+                                sx={{
+                                  justifyContent: 'space-between',
+                                  p: 1.5,
+                                  bgcolor: expandedSections.macronutrients ? 'primary.light' : 'white',
+                                  color: 'primary.main',
+                                  border: '1px solid',
+                                  borderColor: 'primary.light',
+                                  '&:hover': {
+                                    bgcolor: expandedSections.macronutrients ? 'primary.light' : 'primary.50',
+                                  },
+                                }}
+                              >
+                                <Typography variant="subtitle2">Macronutrient Balance</Typography>
+                                {expandedSections.macronutrients ? <ExpandLess /> : <ExpandMore />}
+                              </Button>
+                              <Collapse in={expandedSections.macronutrients} timeout="auto">
+                                <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderTop: 0, borderRadius: '0 0 8px 8px' }}>
+                                  <Box sx={{
+                                    display: 'flex',
+                                    gap: 2,
+                                    flexWrap: 'wrap',
+                                    mb: 2
+                                  }}>
+                                    {['Protein', 'Carbs', 'Fat'].map((macro) => (
+                                      <Box
+                                        key={macro}
+                                        sx={{
+                                          flex: 1,
+                                          minWidth: '150px',
+                                          p: 1.5,
+                                          bgcolor: 'primary.50',
+                                          borderRadius: 1,
+                                          textAlign: 'center'
+                                        }}
+                                      >
+                                        <Typography variant="h6" color="primary.main">{macro}</Typography>
+                                      </Box>
+                                    ))}
+                                  </Box>
+                                  <Typography variant="body2">
+                                    {result.analysis.nutritional_summary.macronutrient_balance}
+                                  </Typography>
+                                </Box>
+                              </Collapse>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      )}
+                    </Box>
+                  </Collapse>
+                </Grid>
+
+                {/* Key Nutrients Button */}
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    onClick={() => handleSectionToggle('keyNutrients')}
+                    sx={{
+                      justifyContent: 'space-between',
+                      p: 2,
+                      bgcolor: expandedSections.keyNutrients ? 'primary.main' : 'white',
+                      color: expandedSections.keyNutrients ? 'white' : 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
+                      '&:hover': {
+                        bgcolor: expandedSections.keyNutrients ? 'primary.dark' : 'primary.50',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Insights />
+                      Key Nutrients & Ingredients
+                    </Box>
+                    {expandedSections.keyNutrients ? <ExpandLess /> : <ExpandMore />}
+                  </Button>
+                  <Collapse in={expandedSections.keyNutrients} timeout="auto">
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      {/* Key Nutrients & Ingredients Analysis */}
+                      <Box sx={{ mb: 3 }}>
+                        <Grid container spacing={2}>
+                          {result.analysis.nutritional_summary?.key_nutrients && (
+                            <Grid item xs={12} md={6}>
+                              <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
+                                <Typography variant="subtitle2" gutterBottom>
+                                  <Insights /> Key Nutrients
+                                </Typography>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                  {result.analysis.nutritional_summary.key_nutrients.map((nutrient, index) => (
+                                    <Chip
+                                      key={index}
+                                      label={nutrient}
+                                      color="primary"
+                                      variant="outlined"
+                                      size="small"
+                                      sx={{ borderRadius: 1 }}
+                                    />
+                                  ))}
+                                </Box>
                               </Box>
-                            ))}
-                          </Box>
-                          <Typography
-                            variant="h4"
+                            </Grid>
+                          )}
+
+                          {result.analysis.ingredient_analysis?.concerning_ingredients && (
+                            <Grid item xs={12} md={6}>
+                              <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
+                                <Typography variant="subtitle2" gutterBottom>
+                                  <Warning /> Concerning Ingredients
+                                </Typography>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                  {result.analysis.ingredient_analysis.concerning_ingredients.map((ingredient, index) => (
+                                    <Chip
+                                      key={index}
+                                      label={ingredient}
+                                      color="error"
+                                      variant="outlined"
+                                      size="small"
+                                      sx={{ borderRadius: 1 }}
+                                    />
+                                  ))}
+                                </Box>
+                              </Box>
+                            </Grid>
+                          )}
+                        </Grid>
+                      </Box>
+                    </Box>
+                  </Collapse>
+                </Grid>
+
+                {/* Health Considerations Button */}
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    onClick={() => handleSectionToggle('health')}
+                    sx={{
+                      justifyContent: 'space-between',
+                      p: 2,
+                      bgcolor: expandedSections.health ? 'primary.main' : 'white',
+                      color: expandedSections.health ? 'white' : 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
+                      '&:hover': {
+                        bgcolor: expandedSections.health ? 'primary.dark' : 'primary.50',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <HealthAndSafety />
+                      Health Considerations
+                    </Box>
+                    {expandedSections.health ? <ExpandLess /> : <ExpandMore />}
+                  </Button>
+                  <Collapse in={expandedSections.health} timeout="auto">
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      {/* Health Considerations */}
+                      {result.analysis.health_considerations && (
+                        <Box sx={{ mb: 3 }}>
+                          <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                            <HealthAndSafety /> Health Considerations
+                          </Typography>
+                          <Grid container spacing={2}>
+                            {/* Risk Level Card */}
+                            <Grid item xs={12} sm={6} md={3}>
+                              <Box sx={{
+                                p: 2,
+                                border: '1px solid',
+                                borderColor: 'primary.light',
+                                borderRadius: 2,
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 1,
+                                bgcolor: 'white'
+                              }}>
+                                <Typography 
+                                  variant="subtitle2" 
+                                  sx={{ 
+                                    color: 'text.secondary',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    fontSize: '0.75rem'
+                                  }}
+                                >
+                                  Risk Level
+                                </Typography>
+                                <Chip
+                                  label={result.analysis.health_considerations.overconsumption_risk}
+                                  color={
+                                    result.analysis.health_considerations.overconsumption_risk === 'Low' ? 'success' :
+                                    result.analysis.health_considerations.overconsumption_risk === 'Medium' ? 'warning' : 'error'
+                                  }
+                                  sx={{
+                                    width: '100%',
+                                    height: '36px',
+                                    '& .MuiChip-label': {
+                                      fontSize: '1rem',
+                                      fontWeight: 600
+                                    }
+                                  }}
+                                />
+                              </Box>
+                            </Grid>
+
+                            {/* Recommended Frequency Card */}
+                            <Grid item xs={12} sm={6} md={3}>
+                              <Box sx={{
+                                p: 2,
+                                border: '1px solid',
+                                borderColor: 'primary.light',
+                                borderRadius: 2,
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 1,
+                                bgcolor: 'white'
+                              }}>
+                                <Typography 
+                                  variant="subtitle2" 
+                                  sx={{ 
+                                    color: 'text.secondary',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    fontSize: '0.75rem'
+                                  }}
+                                >
+                                  Recommended Frequency
+                                </Typography>
+                                <Chip
+                                  label={result.analysis.recommendations.consumption_frequency}
+                                  color="primary"
+                                  sx={{
+                                    width: '100%',
+                                    height: '36px',
+                                    '& .MuiChip-label': {
+                                      fontSize: '0.9rem',
+                                      fontWeight: 500,
+                                      whiteSpace: 'normal',
+                                      display: '-webkit-box',
+                                      '-webkit-line-clamp': 2,
+                                      '-webkit-box-orient': 'vertical',
+                                      overflow: 'hidden'
+                                    }
+                                  }}
+                                />
+                              </Box>
+                            </Grid>
+
+                            {/* Portion Guidance Card */}
+                            <Grid item xs={12} sm={12} md={6}>
+                              <Box sx={{
+                                p: 2,
+                                border: '1px solid',
+                                borderColor: 'primary.light',
+                                borderRadius: 2,
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1,
+                                bgcolor: 'white'
+                              }}>
+                                <Typography 
+                                  variant="subtitle2" 
+                                  sx={{ 
+                                    color: 'text.secondary',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    fontSize: '0.75rem'
+                                  }}
+                                >
+                                  Portion Guidance
+                                </Typography>
+                                <Box sx={{
+                                  flex: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  bgcolor: 'primary.50',
+                                  borderRadius: 1,
+                                  p: 2
+                                }}>
+                                  <Typography 
+                                    variant="body1"
+                                    sx={{
+                                      color: 'primary.main',
+                                      fontWeight: 500,
+                                      lineHeight: 1.5
+                                    }}
+                                  >
+                                    {result.analysis.recommendations.portion_guidance}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        </Box>
+                      )}
+                    </Box>
+                  </Collapse>
+                </Grid>
+
+                {/* Diet Compatibility Button */}
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    onClick={() => handleSectionToggle('diet')}
+                    sx={{
+                      justifyContent: 'space-between',
+                      p: 2,
+                      bgcolor: expandedSections.diet ? 'primary.main' : 'white',
+                      color: expandedSections.diet ? 'white' : 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
+                      '&:hover': {
+                        bgcolor: expandedSections.diet ? 'primary.dark' : 'primary.50',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Person />
+                      Diet Compatibility
+                    </Box>
+                    {expandedSections.diet ? <ExpandLess /> : <ExpandMore />}
+                  </Button>
+                  <Collapse in={expandedSections.diet} timeout="auto">
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      {/* Diet Compatibility */}
+                      {result.analysis.health_considerations?.suitable_diets && (
+                        <Box sx={{ mb: 3 }}>
+                          <Grid container spacing={2}>
+                            <Grid item xs={12} md={6}>
+                              <Box sx={{ p: 2, border: '1px solid', borderColor: 'success.light', borderRadius: 2 }}>
+                                <Typography variant="subtitle2" color="success.main" gutterBottom>
+                                  <Check /> Suitable Diets
+                                </Typography>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                  {result.analysis.health_considerations.suitable_diets.map((diet, index) => (
+                                    <Chip
+                                      key={index}
+                                      label={diet}
+                                      color="success"
+                                      size="small"
+                                      sx={{ borderRadius: 1 }}
+                                    />
+                                  ))}
+                                </Box>
+                              </Box>
+                            </Grid>
+
+                            {result.analysis.health_considerations?.unsuitable_diets && (
+                              <Grid item xs={12} md={6}>
+                                <Box sx={{ p: 2, border: '1px solid', borderColor: 'error.light', borderRadius: 2 }}>
+                                  <Typography variant="subtitle2" color="error.main" gutterBottom>
+                                    <Close /> Unsuitable Diets
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                    {result.analysis.health_considerations.unsuitable_diets.map((diet, index) => (
+                                      <Chip
+                                        key={index}
+                                        label={diet}
+                                        color="error"
+                                        size="small"
+                                        sx={{ borderRadius: 1 }}
+                                      />
+                                    ))}
+                                  </Box>
+                                </Box>
+                              </Grid>
+                            )}
+                          </Grid>
+                        </Box>
+                      )}
+                    </Box>
+                  </Collapse>
+                </Grid>
+
+                {/* Detailed Analysis Button */}
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    onClick={() => handleSectionToggle('detailed')}
+                    sx={{
+                      justifyContent: 'space-between',
+                      p: 2,
+                      bgcolor: expandedSections.detailed ? 'primary.main' : 'white',
+                      color: expandedSections.detailed ? 'white' : 'primary.main',
+                      border: '1px solid',
+                      borderColor: 'primary.main',
+                      '&:hover': {
+                        bgcolor: expandedSections.detailed ? 'primary.dark' : 'primary.50',
+                      },
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Analytics />
+                      Detailed Analysis
+                    </Box>
+                    {expandedSections.detailed ? <ExpandLess /> : <ExpandMore />}
+                  </Button>
+                  <Collapse in={expandedSections.detailed} timeout="auto">
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                      {/* Detailed Analysis */}
+                      {result.analysis.detailed_analysis && (
+                        <Box>
+                          <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                            <Analytics /> Detailed Analysis
+                          </Typography>
+                          <Paper
+                            elevation={0}
                             sx={{
-                              color: 'primary.main',
-                              fontWeight: 'bold'
+                              p: 2,
+                              bgcolor: 'grey.50',
+                              border: '1px solid',
+                              borderColor: 'grey.200',
+                              borderRadius: 2
                             }}
                           >
-                            {result.analysis.nutritional_summary.overall_rating}/5
-                          </Typography>
+                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+                              {result.analysis.detailed_analysis}
+                            </Typography>
+                          </Paper>
                         </Box>
-                      </Box>
-                    </Grid>
-
-                    {/* Calories Assessment */}
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
-                        <Typography variant="subtitle2" gutterBottom>Calories Assessment</Typography>
-                        <Typography variant="body1">{result.analysis.nutritional_summary.calories_assessment}</Typography>
-                      </Box>
-                    </Grid>
-
-                    {/* Macronutrient Balance */}
-                    <Grid item xs={12}>
-                      <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
-                        <Typography variant="subtitle2" gutterBottom>Macronutrient Balance</Typography>
-                        <Box sx={{
-                          display: 'flex',
-                          gap: 2,
-                          flexWrap: 'wrap'
-                        }}>
-                          {['Protein', 'Carbs', 'Fat'].map((macro) => (
-                            <Box
-                              key={macro}
-                              sx={{
-                                flex: 1,
-                                minWidth: '150px',
-                                p: 1.5,
-                                bgcolor: 'primary.50',
-                                borderRadius: 1,
-                                textAlign: 'center'
-                              }}
-                            >
-                              <Typography variant="h6" color="primary.main">{macro}</Typography>
-                            </Box>
-                          ))}
-                        </Box>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          {result.analysis.nutritional_summary.macronutrient_balance}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Box>
-              )}
-
-              {/* Key Nutrients & Ingredients Analysis */}
-              <Box sx={{ mb: 3 }}>
-                <Grid container spacing={2}>
-                  {result.analysis.nutritional_summary?.key_nutrients && (
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          <Insights /> Key Nutrients
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                          {result.analysis.nutritional_summary.key_nutrients.map((nutrient, index) => (
-                            <Chip
-                              key={index}
-                              label={nutrient}
-                              color="primary"
-                              variant="outlined"
-                              size="small"
-                              sx={{ borderRadius: 1 }}
-                            />
-                          ))}
-                        </Box>
-                      </Box>
-                    </Grid>
-                  )}
-
-                  {result.analysis.ingredient_analysis?.concerning_ingredients && (
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderRadius: 2 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          <Warning /> Concerning Ingredients
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                          {result.analysis.ingredient_analysis.concerning_ingredients.map((ingredient, index) => (
-                            <Chip
-                              key={index}
-                              label={ingredient}
-                              color="error"
-                              variant="outlined"
-                              size="small"
-                              sx={{ borderRadius: 1 }}
-                            />
-                          ))}
-                        </Box>
-                      </Box>
-                    </Grid>
-                  )}
+                      )}
+                    </Box>
+                  </Collapse>
                 </Grid>
-              </Box>
-
-              {/* Health Considerations */}
-              {result.analysis.health_considerations && (
-                <Box sx={{ mb: 3 }}>
-                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                    <HealthAndSafety /> Health Considerations
-                  </Typography>
-                  <Grid container spacing={2}>
-                    {/* Overconsumption Risk */}
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Box sx={{
-                        p: 2,
-                        border: '1px solid',
-                        borderColor: 'primary.light',
-                        borderRadius: 2,
-                        textAlign: 'center'
-                      }}>
-                        <Typography variant="subtitle2" gutterBottom>Risk Level</Typography>
-                        <Chip
-                          label={result.analysis.health_considerations.overconsumption_risk}
-                          color={
-                            result.analysis.health_considerations.overconsumption_risk === 'Low' ? 'success' :
-                            result.analysis.health_considerations.overconsumption_risk === 'Medium' ? 'warning' : 'error'
-                          }
-                          sx={{ width: '100%', height: '36px' }}
-                        />
-                      </Box>
-                    </Grid>
-
-                    {/* Consumption Frequency */}
-                    <Grid item xs={12} sm={6} md={3}>
-                      <Box sx={{
-                        p: 2,
-                        border: '1px solid',
-                        borderColor: 'primary.light',
-                        borderRadius: 2,
-                        textAlign: 'center'
-                      }}>
-                        <Typography variant="subtitle2" gutterBottom>Recommended Frequency</Typography>
-                        <Chip
-                          label={result.analysis.recommendations.consumption_frequency}
-                          color="primary"
-                          sx={{ width: '100%', height: '36px' }}
-                        />
-                      </Box>
-                    </Grid>
-
-                    {/* Portion Guidance */}
-                    <Grid item xs={12} sm={6} md={6}>
-                      <Box sx={{
-                        p: 2,
-                        border: '1px solid',
-                        borderColor: 'primary.light',
-                        borderRadius: 2
-                      }}>
-                        <Typography variant="subtitle2" gutterBottom>Portion Guidance</Typography>
-                        <Typography variant="body2">
-                          {result.analysis.recommendations.portion_guidance}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Box>
-              )}
-
-              {/* Diet Compatibility */}
-              {result.analysis.health_considerations?.suitable_diets && (
-                <Box sx={{ mb: 3 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                      <Box sx={{ p: 2, border: '1px solid', borderColor: 'success.light', borderRadius: 2 }}>
-                        <Typography variant="subtitle2" color="success.main" gutterBottom>
-                          <Check /> Suitable Diets
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                          {result.analysis.health_considerations.suitable_diets.map((diet, index) => (
-                            <Chip
-                              key={index}
-                              label={diet}
-                              color="success"
-                              size="small"
-                              sx={{ borderRadius: 1 }}
-                            />
-                          ))}
-                        </Box>
-                      </Box>
-                    </Grid>
-
-                    {result.analysis.health_considerations?.unsuitable_diets && (
-                      <Grid item xs={12} md={6}>
-                        <Box sx={{ p: 2, border: '1px solid', borderColor: 'error.light', borderRadius: 2 }}>
-                          <Typography variant="subtitle2" color="error.main" gutterBottom>
-                            <Close /> Unsuitable Diets
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {result.analysis.health_considerations.unsuitable_diets.map((diet, index) => (
-                              <Chip
-                                key={index}
-                                label={diet}
-                                color="error"
-                                size="small"
-                                sx={{ borderRadius: 1 }}
-                              />
-                            ))}
-                          </Box>
-                        </Box>
-                      </Grid>
-                    )}
-                  </Grid>
-                </Box>
-              )}
-
-              {/* Detailed Analysis */}
-              {result.analysis.detailed_analysis && (
-                <Box>
-                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                    <Analytics /> Detailed Analysis
-                  </Typography>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 2,
-                      bgcolor: 'grey.50',
-                      border: '1px solid',
-                      borderColor: 'grey.200',
-                      borderRadius: 2
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
-                      {result.analysis.detailed_analysis}
-                    </Typography>
-                  </Paper>
-                </Box>
-              )}
-
-              {/* Safety Information */}
-              {result.analysis.safety_information && (
-                <Box>
-                  <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                    <SecurityOutlined /> Safety Information
-                  </Typography>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 2,
-                      bgcolor: 'grey.50',
-                      border: '1px solid',
-                      borderColor: 'grey.200',
-                      borderRadius: 2
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
-                      {result.analysis.safety_information}
-                    </Typography>
-                  </Paper>
-                </Box>
-              )}
+              </Grid>
             </CardContent>
           </Card>
         )
@@ -990,9 +1256,53 @@ function ProductAnalyzer({
             result && (
               <Box sx={{ width: '100%' }}>
                 <Tabs defaultValue="extracted">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="extracted">Information</TabsTrigger>
-                    <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                  <TabsList 
+                    className="grid w-full grid-cols-2"
+                    style={{
+                      padding: '4px',
+                      background: 'white',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(0, 108, 81, 0.08)',
+                      minHeight: '48px',
+                      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
+                    }}
+                  >
+                    <TabsTrigger
+                      value="extracted"
+                      style={{
+                        borderRadius: '8px',
+                        transition: 'all 0.2s ease',
+                        border: 'none',
+                        flex: 1,
+                        minWidth: '120px',
+                        backgroundColor: activeTab === 'extracted' ? '#006C51' : 'transparent',
+                        color: activeTab === 'extracted' ? '#ffffff' : '#006C51',
+                        boxShadow: activeTab === 'extracted' ? '0 2px 4px rgba(0, 108, 81, 0.1)' : 'none',
+                        cursor: 'pointer',
+                        opacity: activeTab === 'extracted' ? 1 : 0.7
+                      }}
+                      onClick={() => setActiveTab('extracted')}
+                    >
+                      Information
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="analysis"
+                      style={{
+                        borderRadius: '8px',
+                        transition: 'all 0.2s ease',
+                        border: 'none',
+                        flex: 1,
+                        minWidth: '120px',
+                        backgroundColor: activeTab === 'analysis' ? '#006C51' : 'transparent',
+                        color: activeTab === 'analysis' ? '#ffffff' : '#006C51',
+                        boxShadow: activeTab === 'analysis' ? '0 2px 4px rgba(0, 108, 81, 0.1)' : 'none',
+                        cursor: 'pointer',
+                        opacity: activeTab === 'analysis' ? 1 : 0.7
+                      }}
+                      onClick={() => setActiveTab('analysis')}
+                    >
+                      Analysis
+                    </TabsTrigger>
                   </TabsList>
 
                   {tabs.map((tab) => (
