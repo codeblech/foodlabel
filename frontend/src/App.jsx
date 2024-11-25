@@ -111,7 +111,7 @@ function App() {
               </DrawerDescription>
             </DrawerHeader>
 
-            <ScrollArea className="h-[70vh] px-4">
+            <ScrollArea className="h-[50vh] px-4">
               {selectedIngredient && analysisResult?.extracted_data?.ingredient_search_results?.[selectedIngredient.name]?.map((result, index) => (
                 <div
                   key={index}
