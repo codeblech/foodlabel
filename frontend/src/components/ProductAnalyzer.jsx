@@ -1314,7 +1314,8 @@ function ProductAnalyzer({
             py: { xs: 1, sm: 2 },
             width: '100%',
             maxWidth: { sm: '600px', md: '900px', lg: '1200px' },
-            mx: 'auto'
+            mx: 'auto',
+            overflow: 'hidden'
           }}
         >
           {/* Header */}
@@ -1546,8 +1547,22 @@ function ProductAnalyzer({
             <LoadingAnimation />
           ) : (
             result && (
-              <Box sx={{ width: '100%' }}>
-                <Tabs defaultValue="extracted">
+              <Box sx={{
+                width: '100%',
+                '& .tab-content': {
+                  width: '100%',
+                  maxWidth: '100%',
+                  mx: 'auto'
+                }
+              }}>
+                <Tabs
+                  defaultValue="extracted"
+                  className="w-full"
+                  style={{
+                    maxWidth: '100%',
+                    overflow: 'hidden'
+                  }}
+                >
                   <TabsList
                     className="grid w-full grid-cols-2"
                     style={{
@@ -1556,7 +1571,8 @@ function ProductAnalyzer({
                       borderRadius: '12px',
                       border: '1px solid rgba(0, 108, 81, 0.08)',
                       minHeight: '48px',
-                      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
+                      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
+                      marginBottom: '16px'
                     }}
                   >
                     <TabsTrigger
@@ -1598,7 +1614,15 @@ function ProductAnalyzer({
                   </TabsList>
 
                   {tabs.map((tab) => (
-                    <TabsContent key={tab.value} value={tab.value}>
+                    <TabsContent
+                      key={tab.value}
+                      value={tab.value}
+                      className="tab-content"
+                      style={{
+                        margin: 0,
+                        padding: 0
+                      }}
+                    >
                       {tab.content}
                     </TabsContent>
                   ))}
