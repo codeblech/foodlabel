@@ -46,6 +46,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useLocation } from 'react-router-dom'
 
 // Helper function to normalize keys for case-insensitive lookup
 const normalizeKey = (key) => key.toLowerCase().trim();
@@ -396,6 +397,21 @@ function ProductAnalyzer({
     calories: false,
     macronutrients: false,
   });
+
+  // Add this to handle saved analysis data
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.state?.savedAnalysis?.data) {
+      const savedData = location.state.savedAnalysis.data;
+      // Ensure we're setting the complete data structure
+      setResult({
+        extracted_data: savedData.extracted_data,
+        analysis: savedData.analysis,
+        product_name: savedData.product_name
+      });
+    }
+  }, [location.state, setResult]);
 
   // 1. Define LoadingAnimation component first
   const LoadingAnimation = () => {

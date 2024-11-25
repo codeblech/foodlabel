@@ -25,7 +25,7 @@ async def search_ingredient(session, ingredient):
             "key": GOOGLE_CUSTOM_SEARCH_API_KEY,
             "cx": GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
             "q": f"{ingredient} health analysis",
-            "num": 5,
+            "num": 10,
         }
 
         async with session.get(url, params=params) as response:

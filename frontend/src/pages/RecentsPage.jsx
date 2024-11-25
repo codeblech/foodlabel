@@ -44,8 +44,18 @@ function RecentsPage() {
   }
 
   const handleCardClick = (analysis) => {
-    // Set the analysis in App's state and navigate to analyzer
-    navigate('/', { state: { analysis } })
+    // Navigate with the full analysis data
+    navigate('/', {
+      state: {
+        savedAnalysis: {
+          data: {
+            extracted_data: analysis.data.extracted_data,
+            analysis: analysis.data.analysis,
+            product_name: analysis.productName
+          }
+        }
+      }
+    })
   }
 
   return (

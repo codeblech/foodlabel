@@ -109,7 +109,7 @@ def analyze_product_image(image_path):
             {"role": "system", "content": analyze_food_prompt},
             {"role": "user", "content": f"Analyze this product data:\n{json.dumps(extracted_data)}"}
         ]
-        
+
         analysis_response = mistral_client.chat.complete(
             model="mistral-large-latest",
             messages=analysis_messages,
@@ -148,17 +148,16 @@ def analyze_product_url(url):
     try:
         print("\n=== Starting Product Analysis ===")
 
-        # Setup both APIs
-        print("\n2. Configuring APIs...")
+        # Setup APIs
+        print("\n1. Configuring APIs...")
         load_dotenv()
         genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
         gemini_model = genai.GenerativeModel("gemini-1.5-pro")
         mistral_client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 
-        # Extract and process images
-        print("\n1. Extracting images from URL...")
-        image_urls = extract_image_urls_from_url(url)
-        image_urls = [modify_image_url(url) for url in image_urls]
+        # Extract images and product info (single Chrome instance)
+        print("\n2. Extracting images from URL...")
+        product_name, image_urls = extract_image_urls_from_url(url)
 
         # Process images
         print("\n3. Processing images...")
@@ -168,28 +167,21 @@ def analyze_product_url(url):
             if open_image_from_url(image_url) is not None
         ]
 
-        # Keep Gemini for image processing
+        # Rest of the analysis code...
         print("\n4. Extracting ingredients and nutrition data...")
         extraction_response = gemini_model.generate_content([extract_ingredients_and_nutrition_prompt] + image_list)
         extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
-        print("\nExtracted Data:")
-        print("Ingredients:", extracted_data["ingredients"])
-        print("Nutrition:", extracted_data["nutritional label"])
 
-        # After extracting ingredients and nutrition data
-        extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
+        # Add product name to extracted data
+        extracted_data["product_name"] = product_name
 
-        # Add Google search results for ingredients
-        google_results = analyze_google_sync(extracted_data["ingredients"])
-        extracted_data["ingredient_search_results"] = google_results
-
-        # Switch to Mistral for analysis
+        # Add analysis step
         print("\n5. Analyzing nutritional data...")
         analysis_messages = [
             {"role": "system", "content": analyze_food_prompt},
             {"role": "user", "content": f"Analyze this product data:\n{json.dumps(extracted_data)}"}
         ]
-        
+
         analysis_response = mistral_client.chat.complete(
             model="mistral-large-latest",
             messages=analysis_messages,

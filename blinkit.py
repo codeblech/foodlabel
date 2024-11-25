@@ -90,10 +90,7 @@ def extract_image_urls(driver, url):
     image_urls = [img.get_attribute("src") for img in images if img.get_attribute("src")]
     print(f"Extracted {len(image_urls)} image URLs.")
 
-    # Modify image URLs right here
-    modified_urls = [modify_image_url(url) for url in image_urls]
-
-    return product_name, modified_urls  # Return modified URLs directly
+    return product_name, image_urls
 
 
 def extract_image_urls_from_url(url):
