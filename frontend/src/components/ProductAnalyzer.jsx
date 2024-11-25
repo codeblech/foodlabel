@@ -335,6 +335,30 @@ const theme = createTheme({
   },
 })
 
+// Add this near the top with other constants
+const FOOD_FACTS = [
+  {
+    title: "Turmeric: India's golden spice of health!",
+    description: "Turmeric contains curcumin, a powerful anti-inflammatory and antioxidant compound, widely used in Indian curries and healing remedies like haldi doodh (turmeric milk)."
+  },
+  {
+    title: "Ragi (Finger Millet): The ancient grain of strength.",
+    description: "Ragi, a staple in many South Indian dishes, is packed with calcium, iron, and amino acids. It's excellent for bone health and is gluten-free."
+  },
+  {
+    title: "Amla (Indian Gooseberry): The immunity booster.",
+    description: "Amla is a seasonal winter fruit high in vitamin C, helping to strengthen the immune system and improve skin health. It's used in chutneys, pickles, and Ayurvedic medicines."
+  },
+  {
+    title: "Indian spices: More than just flavor.",
+    description: "Cumin (jeera), coriander (dhaniya), and fenugreek (methi) are staples in Indian kitchens and are great for digestion, blood sugar regulation, and detoxification."
+  },
+  {
+    title: "Seasonal guavas: A winter immunity booster.",
+    description: "Guavas are rich in vitamin C, fiber, and potassium. Consuming this fruit in winter improves immunity and aids digestion."
+  }
+];
+
 function ProductAnalyzer({
   result,
   setResult,
@@ -362,48 +386,106 @@ function ProductAnalyzer({
   });
 
   // 1. Define LoadingAnimation component first
-  const LoadingAnimation = () => (
-    <Box sx={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-      zIndex: 1000
-    }}>
-      <Lottie
-        animationData={analysisAnimation}
-        loop={true}
-        style={{
-          width: 250,
-          height: 250,
-          margin: '0 auto'
-        }}
-      />
-      <Typography
-        variant="h6"
-        sx={{
-          mt: 2,
-          color: 'primary.main',
-          textAlign: 'center'
-        }}
-      >
-        Analyzing your product...
-      </Typography>
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{ textAlign: 'center', mt: 1 }}
-      >
-        This may take a few moments
-      </Typography>
-    </Box>
-  )
+  const LoadingAnimation = () => {
+    const [currentFactIndex, setCurrentFactIndex] = useState(0);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentFactIndex((prevIndex) => (prevIndex + 1) % FOOD_FACTS.length);
+      }, 10000);
+
+      return () => clearInterval(interval);
+    }, []);
+
+    return (
+      <Box sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        zIndex: 1000,
+        padding: 3
+      }}>
+        <Lottie
+          animationData={analysisAnimation}
+          loop={true}
+          style={{
+            width: 250,
+            height: 250,
+            margin: '0 auto'
+          }}
+        />
+        <Typography
+          variant="h6"
+          sx={{
+            mt: 2,
+            color: 'primary.main',
+            textAlign: 'center'
+          }}
+        >
+          Analyzing your product...
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ textAlign: 'center', mt: 1, mb: 4 }}
+        >
+          This may take a few moments
+        </Typography>
+
+        {/* Food Facts Card */}
+        <Card sx={{
+          maxWidth: 600,
+          width: '100%',
+          bgcolor: 'primary.50',
+          border: '1px solid',
+          borderColor: 'primary.100',
+          transition: 'all 0.5s ease-in-out',
+          animation: 'fadeInOut 10s infinite'
+        }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                color: 'primary.main',
+                mb: 1,
+                fontWeight: 600
+              }}
+            >
+              {FOOD_FACTS[currentFactIndex].title}
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'text.primary',
+                lineHeight: 1.6
+              }}
+            >
+              {FOOD_FACTS[currentFactIndex].description}
+            </Typography>
+          </CardContent>
+        </Card>
+
+        {/* Add keyframes for fade animation */}
+        <style>
+          {`
+            @keyframes fadeInOut {
+              0% { opacity: 0; transform: translateY(20px); }
+              10% { opacity: 1; transform: translateY(0); }
+              90% { opacity: 1; transform: translateY(0); }
+              100% { opacity: 0; transform: translateY(-20px); }
+            }
+          `}
+        </style>
+      </Box>
+    );
+  }
 
   // 2. Define SafetyClassification component
   const SafetyClassification = ({ ingredient, classifications }) => {
