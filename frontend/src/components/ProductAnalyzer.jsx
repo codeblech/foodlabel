@@ -588,15 +588,6 @@ function ProductAnalyzer({
     }
   }
 
-  const handleCameraCapture = () => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/*'
-    input.capture = 'environment'
-    input.onchange = handleFileSelect
-    input.click()
-  }
-
   const handleSectionToggle = (section) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -1586,6 +1577,7 @@ function ProductAnalyzer({
                     name="image"
                     required
                     onChange={handleFileSelect}
+                    capture="environment"
                   />
                   <label htmlFor="image-upload" style={{ width: '100%' }}>
                     <Button
@@ -1601,18 +1593,6 @@ function ProductAnalyzer({
                       Upload Image
                     </Button>
                   </label>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<PhotoCamera />}
-                    onClick={handleCameraCapture}
-                    sx={{
-                      height: '56px',
-                      width: '100%'
-                    }}
-                  >
-                    Take Photo
-                  </Button>
                 </Box>
               )}
             </Box>
