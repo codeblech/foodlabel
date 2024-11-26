@@ -973,44 +973,25 @@ function ProductAnalyzer({
                                 onClick={() => handleSectionToggle('macronutrients')}
                                 sx={{
                                   justifyContent: 'space-between',
-                                  p: 1.5,
-                                  bgcolor: expandedSections.macronutrients ? 'primary.light' : 'white',
-                                  color: 'primary.main',
+                                  p: 2,
+                                  bgcolor: expandedSections.macronutrients ? 'primary.main' : 'white',
+                                  color: expandedSections.macronutrients ? 'white' : 'primary.main',
                                   border: '1px solid',
-                                  borderColor: 'primary.light',
+                                  borderColor: 'primary.main',
                                   '&:hover': {
-                                    bgcolor: expandedSections.macronutrients ? 'primary.light' : 'primary.50',
+                                    bgcolor: expandedSections.macronutrients ? 'primary.dark' : 'primary.50',
                                   },
                                 }}
                               >
-                                <Typography variant="subtitle2">Macronutrient Balance</Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Person />
+                                  Macronutrient Balance
+                                </Box>
                                 {expandedSections.macronutrients ? <ExpandLess /> : <ExpandMore />}
                               </Button>
                               <Collapse in={expandedSections.macronutrients} timeout="auto">
-                                <Box sx={{ p: 2, border: '1px solid', borderColor: 'primary.light', borderTop: 0, borderRadius: '0 0 8px 8px' }}>
-                                  <Box sx={{
-                                    display: 'flex',
-                                    gap: 2,
-                                    flexWrap: 'wrap',
-                                    mb: 2
-                                  }}>
-                                    {['Protein', 'Carbs', 'Fat'].map((macro) => (
-                                      <Box
-                                        key={macro}
-                                        sx={{
-                                          flex: 1,
-                                          minWidth: '150px',
-                                          p: 1.5,
-                                          bgcolor: 'primary.50',
-                                          borderRadius: 1,
-                                          textAlign: 'center'
-                                        }}
-                                      >
-                                        <Typography variant="h6" color="primary.main">{macro}</Typography>
-                                      </Box>
-                                    ))}
-                                  </Box>
-                                  <Typography variant="body2">
+                                <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                                  <Typography variant="body2" sx={{ mb: 2 }}>
                                     {result.analysis.nutritional_summary.macronutrient_balance}
                                   </Typography>
                                 </Box>
