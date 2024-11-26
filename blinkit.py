@@ -142,7 +142,7 @@ if __name__ == "__main__":
     product_name, image_urls = extract_image_urls_from_url(url)
     modified_image_urls = [modify_image_url(url) for url in image_urls]
 
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY_2"))
     model = genai.GenerativeModel("gemini-1.5-pro")
 
     print("Opening images and generating content...")

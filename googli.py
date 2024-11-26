@@ -1,10 +1,8 @@
-from googleapiclient.discovery import build
 import pprint
 from dotenv import load_dotenv
 import os
 import asyncio
 import aiohttp
-import json
 from urllib.parse import quote
 
 load_dotenv()
