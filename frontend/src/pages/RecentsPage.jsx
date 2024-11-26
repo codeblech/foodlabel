@@ -59,7 +59,7 @@ function RecentsPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 10, mb: 4, bgcolor: 'background.default' }}>
+    <Container maxWidth="lg" sx={{ mt: 10, mb: 8, bgcolor: 'background.default' }}>
       <Typography
         variant="h4"
         component="h1"
