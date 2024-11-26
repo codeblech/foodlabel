@@ -2,7 +2,6 @@ import { ThemeProvider, createTheme } from '@mui/material'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import ProductAnalyzer from './components/ProductAnalyzer'
 import Navigation from './components/Navigation'
-import ProfilePage from './pages/ProfilePage'
 import RecentsPage from './pages/RecentsPage'
 import './App.css'
 import '@fontsource/roboto/300.css';
@@ -94,7 +93,6 @@ function App() {
               onIngredientClick={handleIngredientClick}
             />
           } />
-          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/recents" element={<RecentsPage />} />
         </Routes>
         <Navigation />

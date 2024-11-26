@@ -4,7 +4,7 @@ import {
   BottomNavigation,
   BottomNavigationAction,
 } from '@mui/material'
-import { Insights, Person, History } from '@mui/icons-material'
+import { Insights, History } from '@mui/icons-material'
 
 function Navigation() {
   const navigate = useNavigate()
@@ -17,11 +17,8 @@ function Navigation() {
       case '/':
         setValue(0)
         break
-      case '/profile':
-        setValue(1)
-        break
       case '/recents':
-        setValue(2)
+        setValue(1)
         break
       default:
         setValue(0)
@@ -35,9 +32,6 @@ function Navigation() {
         navigate('/')
         break
       case 1:
-        navigate('/profile')
-        break
-      case 2:
         navigate('/recents')
         break
       default:
@@ -73,10 +67,6 @@ function Navigation() {
         icon={<Insights />}
       />
       <BottomNavigationAction
-        label="Profile"
-        icon={<Person />}
-      />
-      <BottomNavigationAction
         label="Recents"
         icon={<History />}
       />
@@ -84,4 +74,4 @@ function Navigation() {
   )
 }
 
-export default Navigation 
+export default Navigation
