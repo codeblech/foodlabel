@@ -578,10 +578,17 @@ function ProductAnalyzer({
     const file = event.target.files[0]
     if (file) {
       setSelectedFile(file)
-      // Create preview URL
-      const preview = URL.createObjectURL(file)
-      setPreviewUrl(preview)
+      setPreviewUrl(URL.createObjectURL(file))
     }
+  }
+
+  const handleCameraCapture = () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.capture = 'environment'
+    input.onchange = handleFileSelect
+    input.click()
   }
 
   const handleSectionToggle = (section) => {
@@ -612,9 +619,8 @@ function ProductAnalyzer({
           body: JSON.stringify({ url }),
         });
       } else {
-        const fileInput = document.getElementById('image-upload');
         const formData = new FormData();
-        formData.append('image', fileInput.files[0]);
+        formData.append('image', selectedFile);
 
         response = await fetch(`${API_URL}/api/analyze`, {
           method: 'POST',
@@ -632,10 +638,6 @@ function ProductAnalyzer({
       if (!data.success) {
         throw new Error(data.error)
       }
-
-      // Save to localStorage with product name
-      const productName = data.data.product_name || `Analysis ${new Date().toLocaleString()}`
-      saveToRecents(productName, data.data)
 
       setResult(data.data)
     } catch (err) {
@@ -1596,7 +1598,6 @@ function ProductAnalyzer({
                     type="file"
                     name="image"
                     required
-                    capture="environment"
                     onChange={handleFileSelect}
                   />
                   <label htmlFor="image-upload" style={{ width: '100%' }}>
@@ -1615,12 +1616,9 @@ function ProductAnalyzer({
                   </label>
                   <Button
                     variant="outlined"
-                    component="span"
                     fullWidth
                     startIcon={<PhotoCamera />}
-                    onClick={() => {
-                      document.getElementById('image-upload').click()
-                    }}
+                    onClick={handleCameraCapture}
                     sx={{
                       height: '56px',
                       width: '100%'
