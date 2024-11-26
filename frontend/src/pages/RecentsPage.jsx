@@ -10,6 +10,7 @@ import {
 } from '@mui/material'
 import { Delete, Analytics } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
+import { FDA_DAILY_VALUES } from '@/components/ProductAnalyzer'
 
 function RecentsPage() {
   const navigate = useNavigate()
@@ -44,7 +45,6 @@ function RecentsPage() {
   }
 
   const handleCardClick = (analysis) => {
-    // Navigate with the full analysis data
     navigate('/', {
       state: {
         savedAnalysis: {

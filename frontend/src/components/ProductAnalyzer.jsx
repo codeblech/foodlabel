@@ -52,7 +52,7 @@ import { useLocation } from 'react-router-dom'
 const normalizeKey = (key) => key.toLowerCase().trim();
 
 // Update FDA_DAILY_VALUES to use new structure from Python file
-const FDA_DAILY_VALUES = {
+export const FDA_DAILY_VALUES = {
   nutrients: [
     {
       name: "Added sugars",
