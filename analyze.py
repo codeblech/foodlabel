@@ -66,7 +66,7 @@ def analyze_product_image(image_path):
         # Setup both APIs
         print("\n1. Configuring APIs...")
         load_dotenv()
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY_2"))
         gemini_model = genai.GenerativeModel("gemini-1.5-pro")
         mistral_client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 
@@ -90,21 +90,20 @@ def analyze_product_image(image_path):
         print("Nutrition:", extracted_data["nutritional label"])
 
         # After extracting ingredients, look up safety information
+        print("\n4. Looking up ingredient safety information...")
         safety_data = {}
         for ingredient in extracted_data["ingredients"]:
-            # Note: In practice, you'd need to extract/match CAS numbers
             safety_info = lookup_ingredient_safety(ingredient, None, reference_data)
             safety_data[ingredient] = safety_info
-
-        # Add safety data to the analysis
         extracted_data["safety_classifications"] = safety_data
 
         # Add Google search results for ingredients
+        print("\n5. Adding Google search results for ingredients...")
         google_results = analyze_google_sync(extracted_data["ingredients"])
         extracted_data["ingredient_search_results"] = google_results
 
         # Analyze the data
-        print("\n4. Analyzing nutritional data...")
+        print("\n6. Analyzing nutritional data...")
         analysis_messages = [
             {"role": "system", "content": analyze_food_prompt},
             {"role": "user", "content": f"Analyze this product data:\n{json.dumps(extracted_data)}"}
@@ -151,32 +150,52 @@ def analyze_product_url(url):
         # Setup APIs
         print("\n1. Configuring APIs...")
         load_dotenv()
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY_2"))
         gemini_model = genai.GenerativeModel("gemini-1.5-pro")
         mistral_client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
 
-        # Extract images and product info (single Chrome instance)
-        print("\n2. Extracting images from URL...")
+        # Load reference data
+        print("\n2. Loading reference data...")
+        reference_data = load_reference_data()
+        if not reference_data:
+            raise Exception("Failed to load reference data")
+
+        # Extract images and product info
+        print("\n3. Extracting images from URL...")
         product_name, image_urls = extract_image_urls_from_url(url)
 
         # Process images
-        print("\n3. Processing images...")
+        print("\n4. Processing images...")
         image_list = [
             open_image_from_url(image_url)
             for image_url in image_urls
             if open_image_from_url(image_url) is not None
         ]
 
-        # Rest of the analysis code...
-        print("\n4. Extracting ingredients and nutrition data...")
+        print("\n5. Extracting ingredients and nutrition data...")
         extraction_response = gemini_model.generate_content([extract_ingredients_and_nutrition_prompt] + image_list)
         extracted_data = json.loads(extraction_response.text.strip().strip("```json").strip())
-
-        # Add product name to extracted data
         extracted_data["product_name"] = product_name
+        print("\nExtracted Data:")
+        print("Product:", extracted_data["product_name"])
+        print("Ingredients:", extracted_data["ingredients"])
+        print("Nutrition:", extracted_data["nutritional label"])
 
-        # Add analysis step
-        print("\n5. Analyzing nutritional data...")
+        # Look up safety information
+        print("\n6. Looking up ingredient safety information...")
+        safety_data = {}
+        for ingredient in extracted_data["ingredients"]:
+            safety_info = lookup_ingredient_safety(ingredient, None, reference_data)
+            safety_data[ingredient] = safety_info
+        extracted_data["safety_classifications"] = safety_data
+
+        # Add Google search results for ingredients
+        print("\n7. Adding Google search results for ingredients...")
+        google_results = analyze_google_sync(extracted_data["ingredients"])
+        extracted_data["ingredient_search_results"] = google_results
+
+        # Analyze the data
+        print("\n8. Analyzing nutritional data...")
         analysis_messages = [
             {"role": "system", "content": analyze_food_prompt},
             {"role": "user", "content": f"Analyze this product data:\n{json.dumps(extracted_data)}"}

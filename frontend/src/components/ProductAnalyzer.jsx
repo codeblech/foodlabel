@@ -548,30 +548,36 @@ function ProductAnalyzer({
   }
 
   // 3. Define IngredientChip component
-  const IngredientChip = ({ ingredient }) => (
-    <Chip
-      label={ingredient}
-      onClick={() => onIngredientClick({ name: ingredient })}
-      sx={{
-        maxWidth: '100%',
-        height: 'auto',
-        cursor: 'pointer',
-        '& .MuiChip-label': {
-          whiteSpace: 'normal',
-          px: 1,
-          py: 0.5,
-          fontSize: { xs: '0.75rem', sm: '0.8rem' },
-          lineHeight: 1.3
-        },
-        borderColor: 'primary.light',
-        '&:hover': {
-          bgcolor: 'primary.light',
-          color: 'white'
-        }
-      }}
-      variant="outlined"
-    />
-  )
+  const IngredientChip = ({ ingredient }) => {
+    // Split ingredient string by commas and clean up whitespace
+    const ingredients = ingredient.split(',').map(i => i.trim());
+
+    return ingredients.map((singleIngredient, index) => (
+      <Chip
+        key={`${singleIngredient}-${index}`}
+        label={singleIngredient}
+        onClick={() => onIngredientClick({ name: singleIngredient })}
+        sx={{
+          maxWidth: '100%',
+          height: 'auto',
+          cursor: 'pointer',
+          '& .MuiChip-label': {
+            whiteSpace: 'normal',
+            px: 1,
+            py: 0.5,
+            fontSize: { xs: '0.75rem', sm: '0.8rem' },
+            lineHeight: 1.3
+          },
+          borderColor: 'primary.light',
+          '&:hover': {
+            bgcolor: 'primary.light',
+            color: 'white'
+          }
+        }}
+        variant="outlined"
+      />
+    ))
+  }
 
   // 4. Define handler functions
   const handleFileSelect = (event) => {
