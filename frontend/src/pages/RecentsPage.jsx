@@ -59,17 +59,19 @@ function RecentsPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 10, mb: 4 }}>
+    <Container maxWidth="lg" sx={{ mt: 10, mb: 4, bgcolor: 'background.default' }}>
       <Typography
         variant="h4"
         component="h1"
         sx={{
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: 1,
-          mb: 4,
+          mb: 3,
           color: 'primary.main',
-          fontWeight: 600
+          fontWeight: 600,
+          fontSize: { xs: '1.5rem', sm: '2rem' }
         }}
       >
         <Analytics /> Recent Analyses
